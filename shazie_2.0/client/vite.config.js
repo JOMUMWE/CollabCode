@@ -7,6 +7,6 @@ export default defineConfig({
     react(),
   ],
   server: {
-    allowedHosts: ['5173-jomumwe-collabcode-c0ojq6q17ij.ws-eu117.gitpod.io']
+    allowedHosts: ['5173-jomumwe-collabcode-kswko7rn7zm.ws-eu117.gitpod.io']
   }
 })
