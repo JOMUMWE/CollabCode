@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent.png';
+import Authgitgoogle from '../components/authgitgoogle';
 
 export default function Signup() {
   const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '' });
@@ -126,7 +127,8 @@ export default function Signup() {
             <a href="/signin" className="font-semibold text-indigo-600 hover:text-indigo-500">
               Signin
             </a>
-          </p>
+        </p>
+        <Authgitgoogle />
       </div>
     </div>
   );
