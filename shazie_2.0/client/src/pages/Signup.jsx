@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent.png';
-import Authgitgoogle from '../components/authgitgoogle';
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios';
+import {toast} from 'react-hot-toast'
+
+
+// import Authgitgoogle from '../compolnents/authgitgooge';
 
 export default function Signup() {
-  const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState('');
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,8 +40,10 @@ export default function Signup() {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const {name, email, password} = FormData
+
     if (formData.password !== formData.confirmPassword) {
       setError('❌ Passwords do not match!');
       return;
@@ -46,7 +55,20 @@ export default function Signup() {
     }
 
     setError('');
-    console.log('Form Submitted:', formData);
+    
+  try{
+
+    const {data} = await axios.post('/register',{name , email, password})
+    if(data.error){
+      toast.error(data.error)
+    }else{
+      setFormData({})
+      toast.success('Login Successful. Welcome!')
+      navigate('/signin')
+    }
+  }catch(error){
+    console.log(error)
+  }
   };
 
   return (
@@ -63,6 +85,21 @@ export default function Signup() {
       <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-900">
+              Full Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              autoComplete="email"
+              className="block w-full rounded-md bg-white px-3 py-1 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
+            />
+          </div>
+          <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-900">
               Email address
             </label>
@@ -74,7 +111,7 @@ export default function Signup() {
               value={formData.email}
               onChange={handleChange}
               autoComplete="email"
-              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
+              className="block w-full rounded-md bg-white px-3 py-1 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
             />
           </div>
 
@@ -90,9 +127,9 @@ export default function Signup() {
               value={formData.password}
               onChange={handleChange}
               autoComplete="new-password"
-              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
+              className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
             />
-            <p className={`mt-1 text-sm ${passwordStrength.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`mt-1 text-xs ${passwordStrength.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
               {passwordStrength}
             </p>
           </div>
@@ -109,11 +146,11 @@ export default function Signup() {
               value={formData.confirmPassword}
               onChange={handleChange}
               autoComplete="new-password"
-              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
+              className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-xs">{error}</p>}
 
           <button
             type="submit"
@@ -128,7 +165,7 @@ export default function Signup() {
               Signin
             </a>
         </p>
-        <Authgitgoogle />
+        {/* <Authgitgoogle /> */}
       </div>
     </div>
   );

@@ -8,5 +8,5 @@ export default defineConfig({
   ],
   server: {
     allowedHosts: ['5173-jomumwe-collabcode-kswko7rn7zm.ws-eu117.gitpod.io']
-  }
+  },
 })

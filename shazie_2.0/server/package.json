@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "The project, CodeCollab, aims to enhance developer collaboration through real-time code editing and integrated communication tools. Based on your document, here are the key components we should focus on for development:",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
