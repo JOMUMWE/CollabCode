@@ -4,10 +4,10 @@ import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent
 
 
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Team', href: '#', current: false },
-  { name: 'Projects', href: '#', current: false },
-  { name: 'Calendar', href: '#', current: false },
+  { name: 'Dashboard', href: '/dashboard/dash', current: true },
+  { name: 'Team', href: '/dashboard/teams', current: false },
+  { name: 'Projects', href: '/dashboard/projects', current: false },
+  { name: 'Calendar', href: '/dashboard/calendar', current: false },
 ]
 
 function classNames(...classes) {
@@ -30,11 +30,11 @@ export default function Navbar() {
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
-              <img
+              <a href='/'><img
                 alt="Your Company"
                 src={png}
                 className="h-8 w-auto"
-              />
+              /></a>
             </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">

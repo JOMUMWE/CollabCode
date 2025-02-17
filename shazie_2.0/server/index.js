@@ -20,8 +20,8 @@ const CLIENT_URL = "https://5173-jomumwe-collabcode-kswko7rn7zm.ws-eu117.gitpod.
 app.use((req, res,next) => {
   res.header("Access-Control-Allow-Origin", CLIENT_URL);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type,Accept, x-client-key, x-client-token, x-client-secret, Authorization");
-    next();
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type,Accept, x-client-key, x-client-token, x-client-secret, Authorization");
+  next();
 });
 
 

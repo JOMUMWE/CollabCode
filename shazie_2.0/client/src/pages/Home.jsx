@@ -8,7 +8,7 @@ import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent
 
 const navigation = [
   { name: 'Product', href: '#' },
-  { name: 'Features', href: '#' },
+  { name: 'Features', href: '#features' },
   { name: 'Marketplace', href: '#' },
   { name: 'Company', href: '#' },
 ]
@@ -182,7 +182,7 @@ export default function Home() {
         </div>
       </div>
     </div>
-    <div className="bg-white py-24 sm:py-32">
+    <div id='features' className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
           <h2 className="text-base/7 font-semibold text-indigo-600">Why Choose CollabCode?</h2>
