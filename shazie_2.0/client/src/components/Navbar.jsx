@@ -1,20 +1,34 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/outline'
-import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent.png'
+import { ArrowRightIcon, BellIcon, XIcon } from '@heroicons/react/outline'
+import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent.png';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard/dash', current: true },
-  { name: 'Team', href: '/dashboard/teams', current: false },
-  { name: 'Projects', href: '/dashboard/projects', current: false },
-  { name: 'Calendar', href: '/dashboard/calendar', current: false },
-]
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
+export default function Example() {
+  const navigate = useNavigate();
+  const navigation = [
+    { name: 'Dashboard', href: '#', current: true },
+    { name: 'Team', href: '#', current: false },
+    { name: 'Projects', href: '#', current: false },
+    { name: 'Calendar', href: '#', current: false },
+  ]
 
-export default function Navbar() {
+  function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+  }
+  const logoutUser = () => {
+    try {
+      axios.get("/logout").then(() => {
+        toast.success("logged out")
+        navigate("/signin");
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Disclosure as="nav" className="bg-gray-800">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -24,8 +38,8 @@ export default function Navbar() {
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
-              <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
+              <ArrowRightIcon aria-hidden="true" className="block size-6 group-data-open:hidden" />
+              <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
             </DisclosureButton>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -99,7 +113,7 @@ export default function Navbar() {
                 </MenuItem>
                 <MenuItem>
                   <a
-                    href="#"
+                    onClick={logoutUser}
                     className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >
                     Sign out

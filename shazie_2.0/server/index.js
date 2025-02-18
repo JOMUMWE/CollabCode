@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 
-const CLIENT_URL = "https://5174-jomumwe-collabcode-kswko7rn7zm.ws-eu117.gitpod.io";
+const CLIENT_URL = "http://localhost:5173";
 
 // ✅ Correct CORS Configuration
 app.use(cors({

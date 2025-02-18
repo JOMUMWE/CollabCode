@@ -42,7 +42,7 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {name, email, password} = FormData
+    const {name, email, password} = formData
 
     if (formData.password !== formData.confirmPassword) {
       setError('❌ Passwords do not match!');
@@ -57,7 +57,7 @@ export default function Signup() {
     setError('');
     
   try{
-
+    console.log(password)
     const {data} = await axios.post('/register',{name , email, password})
     if(data.error){
       toast.error(data.error)

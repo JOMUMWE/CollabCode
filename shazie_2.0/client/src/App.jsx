@@ -13,7 +13,7 @@ import Projects from './components/projects'
 
 
 
-axios.defaults.baseURL = 'https://8000-jomumwe-collabcode-kswko7rn7zm.ws-eu117.gitpod.io'
+axios.defaults.baseURL = 'http://localhost:8000'
 axios.defaults.withCredentials = true
 
 function App() {

@@ -31,8 +31,6 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      phoneNumber,
-      profilePic:""
     });
 
     return res.json(user);
