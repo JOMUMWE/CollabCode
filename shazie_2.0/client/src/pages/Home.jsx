@@ -1,9 +1,9 @@
 'use client'
 
-import { ArrowPathIcon, CloudArrowUpIcon, FingerPrintIcon, LockClosedIcon } from '@heroicons/react/outline'
+// import { ArrowPathIcon, CloudArrowUpIcon, FingerPrintIcon, LockClosedIcon } from '@heroicons/react/outline'
 import { useState } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/outline'
+// import { Bars3Icon, XIcon } from '@heroicons/react/outline'
 import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent.png';
 
 const navigation = [
@@ -12,32 +12,32 @@ const navigation = [
   { name: 'Marketplace', href: '#' },
   { name: 'Company', href: '#' },
 ]
-const features = [
-  {
-    name: 'Real-Time Collaboration',
-    description:
-      'Work together seamlessly with your team on the same codebase in real-time, making development faster and more efficient.',
-    icon: CloudArrowUpIcon,
-  },
-  {
-    name: 'End-to-End Security',
-    description:
-      'Your code is protected with industry-standard encryption and security measures, ensuring safe and private collaboration.',
-    icon: LockClosedIcon,
-  },
-  {
-    name: 'Seamless Version Control',
-    description:
-      'Integrate directly with GitHub and GitLab, allowing you to manage versions, branches, and collaboration without leaving the platform.',
-    icon: ArrowPathIcon,
-  },
-  {
-    name: 'AI-Powered Code Assistance',
-    description:
-      'Leverage AI-driven suggestions to improve your code, detect issues, and optimize performance effortlessly.',
-    icon: FingerPrintIcon,
-  },
-]
+// const features = [
+//   {
+//     name: 'Real-Time Collaboration',
+//     description:
+//       'Work together seamlessly with your team on the same codebase in real-time, making development faster and more efficient.',
+//     icon: CloudArrowUpIcon,
+//   },
+//   {
+//     name: 'End-to-End Security',
+//     description:
+//       'Your code is protected with industry-standard encryption and security measures, ensuring safe and private collaboration.',
+//     icon: LockClosedIcon,
+//   },
+//   {
+//     name: 'Seamless Version Control',
+//     description:
+//       'Integrate directly with GitHub and GitLab, allowing you to manage versions, branches, and collaboration without leaving the platform.',
+//     icon: ArrowPathIcon,
+//   },
+//   {
+//     name: 'AI-Powered Code Assistance',
+//     description:
+//       'Leverage AI-driven suggestions to improve your code, detect issues, and optimize performance effortlessly.',
+//     icon: FingerPrintIcon,
+//   },
+// ]
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -64,7 +64,7 @@ export default function Home() {
               className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
             >
               <span className="sr-only">Open main menu</span>
-              <Bars3Icon aria-hidden="true" className="size-6" />
+              {/* <Bars3Icon aria-hidden="true" className="size-6" /> */}
             </button>
           </div>
           <div className="hidden lg:flex lg:gap-x-12">
@@ -98,7 +98,7 @@ export default function Home() {
                 className="-m-2.5 rounded-md p-2.5 text-gray-700"
               >
                 <span className="sr-only">Close menu</span>
-                <XMarkIcon aria-hidden="true" className="size-6" />
+                {/* <XIcon aria-hidden="true" className="size-6" /> */}
               </button>
             </div>
             <div className="mt-6 flow-root">
@@ -190,7 +190,7 @@ export default function Home() {
             Features Designed for Seamless Coding Collaboration
           </p>
         </div>
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+        {/* <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
           <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
             {features.map((feature) => (
               <div key={feature.name} className="relative pl-16">
@@ -204,7 +204,7 @@ export default function Home() {
               </div>
             ))}
           </dl>
-        </div>
+        </div> */}
       </div>
     </div>
     </>
