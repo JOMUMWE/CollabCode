@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import Footer from '../components/Footer';
 
 
 export default function Dashboard() {
@@ -35,6 +36,7 @@ export default function Dashboard() {
       <Navbar />
       <a onClick={logoutUser}>logout</a>
       <Outlet />
+      <Footer />
     </>
   )
 }

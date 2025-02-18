@@ -4,10 +4,20 @@ import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 
 
 export default function Example() {
+  const [user, setUser] = useState("");
+  useEffect(() => {
+    if (!user) {
+      axios.get("/profile").then(({ data }) => {
+        setUser(data);
+      });
+    }
+
+  }, []);
   const navigate = useNavigate();
   const navigation = [
     { name: 'Dashboard', href: '#', current: true },
@@ -38,7 +48,7 @@ export default function Example() {
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <ArrowRightIcon aria-hidden="true" className="block size-6 group-data-open:hidden" />
+              <ArrowRightIcon aria-hidden="true" className="block size-4 group-data-open:hidden" />
               <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
             </DisclosureButton>
           </div>
@@ -80,8 +90,8 @@ export default function Example() {
 
             {/* Profile dropdown */}
             <Menu as="div" className="relative ml-3">
-              <div>
-                <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
+              <div className='flex justify-between items-center'>
+                <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden hover:cursor-pointer">
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
                   <img
@@ -90,6 +100,7 @@ export default function Example() {
                     className="size-8 rounded-full"
                   />
                 </MenuButton>
+                <p className=' text-xs text-white ml-2'>{user.name}</p>
               </div>
               <MenuItems
                 transition

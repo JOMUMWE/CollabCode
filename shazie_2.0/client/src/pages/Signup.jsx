@@ -2,12 +2,13 @@ import { useState } from 'react';
 import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent.png';
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
-import {toast} from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 
 
 // import Authgitgoogle from '../compolnents/authgitgooge';
 
 export default function Signup() {
+  const [active, setActive] = useState(true)
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState('');
@@ -41,34 +42,37 @@ export default function Signup() {
   };
 
   const handleSubmit = async (e) => {
+    setActive(false)
     e.preventDefault();
-    const {name, email, password} = formData
+    const { name, email, password } = formData
 
     if (formData.password !== formData.confirmPassword) {
       setError('❌ Passwords do not match!');
+      setActive(true)
       return;
     }
 
     if (!passwordStrength.includes('✅ Strong Password')) {
+      setActive(true)
       setError('❌ Password is too weak!');
       return;
     }
 
     setError('');
-    
-  try{
-    console.log(password)
-    const {data} = await axios.post('/register',{name , email, password})
-    if(data.error){
-      toast.error(data.error)
-    }else{
-      setFormData({})
-      toast.success('Login Successful. Welcome!')
-      navigate('/signin')
+
+    try {
+      const { data } = await axios.post('/register', { name, email, password })
+      if (data.error) {
+        toast.error(data.error)
+        setActive(true)
+      } else {
+        setFormData({})
+        toast.success('Login Successful. Welcome!')
+        navigate('/signin')
+      }
+    } catch (error) {
+      console.log(error)
     }
-  }catch(error){
-    console.log(error)
-  }
   };
 
   return (
@@ -154,16 +158,19 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+            className={active ?
+              "flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+              : "flex w-full justify-center rounded-md bg-indigo-400 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+            }
           >
-            Sign up
+            {active ? 'Signin' : "Signing you up..."}
           </button>
         </form>
         <p className="mt-10 text-center text-sm/6 text-gray-500">
-            Have an account?{' '}
-            <a href="/signin" className="font-semibold text-indigo-600 hover:text-indigo-500">
-              Signin
-            </a>
+          Have an account?{' '}
+          <a href="/signin" className="font-semibold text-indigo-600 hover:text-indigo-500">
+            Sign in
+          </a>
         </p>
         {/* <Authgitgoogle /> */}
       </div>
