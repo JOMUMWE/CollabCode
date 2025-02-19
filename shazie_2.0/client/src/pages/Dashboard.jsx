@@ -34,7 +34,6 @@ export default function Dashboard() {
   return (
     <>
       <Navbar />
-      <a onClick={logoutUser}>logout</a>
       <Outlet />
       <Footer />
     </>

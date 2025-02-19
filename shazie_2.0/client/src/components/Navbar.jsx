@@ -20,10 +20,10 @@ export default function Example() {
   }, []);
   const navigate = useNavigate();
   const navigation = [
-    { name: 'Dashboard', href: '#', current: true },
-    { name: 'Team', href: '#', current: false },
-    { name: 'Projects', href: '#', current: false },
-    { name: 'Calendar', href: '#', current: false },
+    { name: 'Dashboard', href: '/dashboard/dash', current: false },
+    { name: 'Team', href: '/dashboard/teams', current: false },
+    { name: 'Projects', href: '/dashboard/projects', current: false },
+    { name: 'Calendar', href: '/dashboard/calendar', current: false },
   ]
 
   function classNames(...classes) {

@@ -1,9 +1,9 @@
-const User = require("../models/user");
+const { User, Project, Task, Comment, Commit, VersionControl, Team } = require("../models/user");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
 
 const hi = (req, res) => {
-    res.json('hi')
+  res.json('hi')
 }
 const logoutUser = (req, res) => {
   res.cookie("token", "", { maxAge: 1 });
@@ -52,7 +52,7 @@ const loginUser = async (req, res) => {
     const match = await comparePassword(password, user.password);
     if (match) {
       jwt.sign(
-        { email: user.email, id: user._id, name: user.name},
+        { email: user.email, id: user._id, name: user.name },
         process.env.JWT_SECRET,
         {},
         (err, token) => {
@@ -74,7 +74,7 @@ const loginUser = async (req, res) => {
 const getProfile = async (req, res) => {
   const { token } = req.cookies;
   if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => { 
+    jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => {
       if (err) throw err;
       res.json(user);
     });
@@ -83,24 +83,24 @@ const getProfile = async (req, res) => {
   }
 };
 
-const updateProfile = async(req,res) => {
-  const {img, id} = req.body;
+const updateProfile = async (req, res) => {
+  const { img, id } = req.body;
   try {
-     await User.updateOne(
-       { _id: id },
-       {
-         $set: {
-           profilePic: img
-         },
-       }
-     );
+    await User.updateOne(
+      { _id: id },
+      {
+        $set: {
+          profilePic: img
+        },
+      }
+    );
     return res.json({ status: "ok", data: "updated" });
   } catch (error) {
-     return res.json({ error: error });
+    return res.json({ error: error });
   }
 }
 
-const updateUser = async (req,res) => {
+const updateUser = async (req, res) => {
   const { name, password, phoneNumber, id } = req.body;
   if (!password || password.length < 6) {
     return res.json({
@@ -131,4 +131,4 @@ const updateUser = async (req,res) => {
   }
 }
 
-module.exports = { hi,registerUser, loginUser, getProfile, logoutUser, updateUser };
+module.exports = { hi, registerUser, loginUser, getProfile, logoutUser, updateUser };
