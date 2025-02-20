@@ -1,13 +1,21 @@
-const { User, Project, Task, Comment, Commit, VersionControl, Team } = require("../models/user");
+const {
+  User,
+  Project,
+  Task,
+  Comment,
+  Commit,
+  VersionControl,
+  Team,
+} = require("../models/user");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
 
 const hi = (req, res) => {
-  res.json('hi')
-}
+  res.json("hi");
+};
 const logoutUser = (req, res) => {
   res.cookie("token", "", { maxAge: 1 });
-  res.json('logged out')
+  res.json("logged out");
 };
 
 const registerUser = async (req, res) => {
@@ -90,7 +98,7 @@ const updateProfile = async (req, res) => {
       { _id: id },
       {
         $set: {
-          profilePic: img
+          profilePic: img,
         },
       }
     );
@@ -98,7 +106,7 @@ const updateProfile = async (req, res) => {
   } catch (error) {
     return res.json({ error: error });
   }
-}
+};
 
 const updateUser = async (req, res) => {
   const { name, password, phoneNumber, id } = req.body;
@@ -129,6 +137,86 @@ const updateUser = async (req, res) => {
   } catch (error) {
     return res.json({ error: error });
   }
-}
+};
 
-module.exports = { hi, registerUser, loginUser, getProfile, logoutUser, updateUser };
+const createTeam = async (req, res) => {
+  try {
+    const { name, emails, creatorId } = req.body;
+
+    if (!name || !emails || emails.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "Team name and at least one email are required" });
+    }
+
+    // Find users by emails
+    const members = await User.find({ email: { $in: emails } });
+
+    if (members.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "No valid users found for these emails" });
+    }
+
+    // Find the creator in the database
+    const creator = await User.findById(creatorId);
+    if (!creator) {
+      return res.status(404).json({ error: "Creator not found" });
+    }
+
+    const allMembers = [
+      ...new Set([creator._id, ...members.map((user) => user._id)]),
+    ];
+
+    // Create new team
+    const team = await Team.create({
+      name,
+      members: allMembers, // Store member IDs
+      projects: [],
+      createdBy: creatorId,
+    });
+
+    // Save the team to the database
+    await team.save();
+
+    res.status(201).json({ message: "Team created successfully", team });
+  } catch (error) {
+    console.error("Error creating team:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+const getTeams = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    // Find teams where the user is either a member or the creator
+    const teams = await Team.find({
+      $or: [{ members: userId }, { createdBy: userId }],
+    })
+      .populate("members", "name email") // Populate member details
+      .populate("createdBy", "name email") // Populate creator details
+      .populate("projects", "projectName"); // Populate associated projects (if needed)
+
+    if (!teams.length) {
+      return res.status(404).json({ message: "No teams found for this user" });
+    }
+
+    res.status(200).json({ teams });
+  } catch (error) {
+    console.error("Error fetching teams:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+module.exports = {
+  hi,
+  registerUser,
+  loginUser,
+  getProfile,
+  logoutUser,
+  updateUser,
+  createTeam,
+};
