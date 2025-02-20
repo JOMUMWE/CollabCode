@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function TeamsForm(props) {
+  const navigate = useNavigate();
   const [active, setActive] = useState(true);
   const [formData, setFormData] = useState({ name: "", emails: [] });
   const [emailInput, setEmailInput] = useState(""); // Temporary input for adding emails
@@ -60,8 +62,8 @@ export default function TeamsForm(props) {
       toast.error("Something went wrong!");
     }
     setActive(true);
+    navigate("/dashboard/teams");
   };
-
   return (
     <div className=" sm:mx-auto sm:w-full sm:max-w-sm px-6 py-12 lg:px-8">
       <form onSubmit={handleSubmit} className="space-y-6">

@@ -8,6 +8,7 @@ const {
   logoutUser,
   updateUser,
   createTeam,
+  getTeams,
 } = require("../controllers/authController");
 
 router.get("/", hi);
@@ -17,5 +18,6 @@ router.get("/profile", getProfile);
 router.get("/logout", logoutUser);
 router.post("/updateUser", updateUser);
 router.post("/team", createTeam);
+router.get("/teams/:userId", getTeams);
 
 module.exports = router;

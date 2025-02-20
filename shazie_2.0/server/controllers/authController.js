@@ -7,6 +7,7 @@ const {
   VersionControl,
   Team,
 } = require("../models/user");
+const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
 
@@ -142,7 +143,6 @@ const updateUser = async (req, res) => {
 const createTeam = async (req, res) => {
   try {
     const { name, emails, creatorId } = req.body;
-
     if (!name || !emails || emails.length === 0) {
       return res
         .status(400)
@@ -170,7 +170,7 @@ const createTeam = async (req, res) => {
 
     // Create new team
     const team = await Team.create({
-      name,
+      teamName: name,
       members: allMembers, // Store member IDs
       projects: [],
       createdBy: creatorId,
@@ -219,4 +219,5 @@ module.exports = {
   logoutUser,
   updateUser,
   createTeam,
+  getTeams,
 };

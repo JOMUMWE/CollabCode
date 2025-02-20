@@ -6,17 +6,9 @@ import { PlusIcon } from "@heroicons/react/outline";
 import { Outlet } from "react-router-dom";
 import Avatar from "./utilities/Avatar";
 import TeamsForm from "./TeamsForm";
+import MemberTable from "./utilities/MemberTable";
 
-export default function Teams() {
-  const [teamData, setTeamData] = useState("");
-  const [user, setUser] = useState(false);
-  useEffect(() => {
-    if (!user) {
-      axios.get("/profile").then(({ data }) => {
-        setUser(data);
-      });
-    }
-  }, []);
+export default function Teams(props) {
   const [active, setActive] = useState(true);
   const people = [
     {
@@ -55,17 +47,7 @@ export default function Teams() {
       </ul>
     </div>
   );
-  useEffect(() => {
-    axios
-      .get(`/teams/${user.id}`)
-      .then((response) => {
-        console.log(response);
-        setTeamData(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching teams:", error);
-      });
-  }, []);
+  const team = Array.isArray(props.team) ? props.team : [];
   return (
     <>
       <header className="bg-white">
@@ -76,26 +58,40 @@ export default function Teams() {
         </div>
       </header>
       <main className="bg-white ">
-        {teamData.length > 0 ? (
-          teamData.map((team) => (
+        {team.length > 0 ? (
+          team.map((teamItem) => (
             <>
-              <ul className="md:w-2/6 sm:w-4/6 list bg-base-100 rounded-box shadow-md ml-7 mr-7">
-                <li className="list-row">
+              <ul className="md:w-2/6 sm:w-4/6 list bg-base-100 rounded-box shadow-md ml-7 mr-7 mt-5 dropdown dropdown-right">
+                <li
+                  key={teamItem._id || teamItem.teamName}
+                  className="list-row"
+                >
                   <div>
                     <Avatar />
                   </div>
                   <div>
-                    <div>{team.name}</div>
+                    <div>{teamItem.teamName}</div>
                     <div className="text-xs uppercase font-semibold opacity-60">
-                      {team.createdBy}
+                      {teamItem.createdBy.name || "Unknown Creator"}
                     </div>
                   </div>
+                  <div tabIndex={0} role="button" className="btn m-1">
+                    Click
+                  </div>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow"
+                  >
+                    <li>
+                      <MemberTable />
+                    </li>
+                  </ul>
                 </li>
               </ul>
             </>
           ))
         ) : (
-          <li className="p-3 text-center text-gray-500">No teams found</li>
+          <p className="text-center text-gray-500">No teams available</p>
         )}
       </main>
       <div className="bg-white px-10 py-6 sm:py-16">
