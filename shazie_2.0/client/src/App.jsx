@@ -10,8 +10,9 @@ import Teams from "./components/Teams";
 import Dash from "./components/Dash";
 import Calendar from "./components/Calendar";
 import Projects from "./components/projects";
-import TeamsForm from "./components/TeamsForm";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import SocketWrapper from "./components/socketWrapper";
+import Room from "./pages/Room";
 
 axios.defaults.baseURL = "http://localhost:8000";
 axios.defaults.withCredentials = true;
@@ -24,6 +25,7 @@ function App() {
       if (!user) {
         axios.get("/profile").then(({ data }) => {
           setUser(data);
+          console.log(user);
           axios
             .get("/teams/" + data.id)
             .then((response) => {
@@ -39,7 +41,7 @@ function App() {
     }
   };
   getprofile();
-  console.log(teamData);
+
   return (
     <>
       <Toaster position="top-right" />
@@ -50,14 +52,20 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />}>
           <Route
             path="/dashboard/teams"
-            element={<Teams team={teamData.teams} />}
-          >
-            <Route path="/dashboard/teams/create" element={<TeamsForm />} />
-          </Route>
+            element={<Teams user={user.name} team={teamData.teams} />}
+          />
           <Route path="/dashboard/dash" element={<Dash />} />
           <Route path="/dashboard/calendar" element={<Calendar />} />
           <Route path="/dashboard/projects" element={<Projects />} />
         </Route>
+        <Route
+          path="/room/:roomId"
+          element={
+            <SocketWrapper>
+              <Room />
+            </SocketWrapper>
+          }
+        />
         <Route path="/*" element={<Page404 />} />
       </Routes>
     </>

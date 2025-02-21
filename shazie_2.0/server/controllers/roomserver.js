@@ -1,26 +1,22 @@
-const express = require("express");
-const dotenv = require("dotenv").config();
-const cors = require("cors");
-const mongoose = require("mongoose");
-const cookieParser = require("cookie-parser");
-const { Server } = require("socket.io");
+const app = require("express")();
 const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
 
-const app = express();
+app.use(cors());
+
 const server = http.createServer(app);
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Specify the frontend URL
-    credentials: true, // Allow cookies and authentication headers
-  })
-);
-app.use(express.json({ limit: "50mb" }));
-app.use(cookieParser());
-app.use(express.urlencoded({ extended: false }));
 
-// ✅ Use authentication routes
-app.use("/", require("./routes/authRoutes"));
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost/5173",
+    methods: ["GET", "POST"],
+  },
+});
+
+app.get("/", function (req, res) {
+  res.send("Hello from the server!");
+});
 
 const socketID_to_Users_Map = {};
 const roomID_to_Code_Map = {};
@@ -137,13 +133,9 @@ io.on("connection", function (socket) {
   });
 });
 
-// ✅ Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(() => console.log("✅ Database connected!"))
-  .catch((err) => console.log("❌ Database not connected", err));
-
-const PORT = process.env.PORT || 8000;
+//you can store your port number in a dotenv file, fetch it from there and store it in PORT
+//we have hard coded the port number here just for convenience
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, function () {
   console.log(`listening on port : ${PORT}`);
