@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
 export default function TeamsForm(props) {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ export default function TeamsForm(props) {
   const [formData, setFormData] = useState({ name: "", emails: [] });
   const [emailInput, setEmailInput] = useState(""); // Temporary input for adding emails
   const [user, setUser] = useState(false);
+  const [emailError, setEmailError] = useState(""); // State to store email validation error
+
   useEffect(() => {
     if (!user) {
       axios.get("/profile").then(({ data }) => {
@@ -24,10 +27,33 @@ export default function TeamsForm(props) {
 
   const handleEmailChange = (e) => {
     setEmailInput(e.target.value);
+    validateEmail(e.target.value);
   };
 
+  const validateEmail = debounce(async (email) => {
+    if (email.trim()) {
+      try {
+        const { data } = await axios.get(`/validate-email?email=${email}`);
+        if (!data.exists) {
+          setEmailError("Email does not exist.");
+        } else {
+          setEmailError("");
+        }
+      } catch (error) {
+        console.error(error);
+        setEmailError("Error validating email.");
+      }
+    } else {
+      setEmailError("");
+    }
+  }, 300);
+
   const addEmail = () => {
-    if (emailInput.trim() && !formData.emails.includes(emailInput)) {
+    if (
+      emailInput.trim() &&
+      !formData.emails.includes(emailInput) &&
+      !emailError
+    ) {
       setFormData({ ...formData, emails: [...formData.emails, emailInput] });
       setEmailInput("");
     }
@@ -43,7 +69,6 @@ export default function TeamsForm(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setActive(false);
-    console.log(user.id);
     try {
       const { data } = await axios.post("/team", {
         name: formData.name,
@@ -56,6 +81,7 @@ export default function TeamsForm(props) {
         setFormData({ name: "", emails: [] });
         toast.success("Team Created Successfully!");
         props.fun(!props.act);
+        props.refreshTeams(); // Refresh teams list
       }
     } catch (error) {
       console.error(error);
@@ -64,8 +90,9 @@ export default function TeamsForm(props) {
     setActive(true);
     navigate("/dashboard/teams");
   };
+
   return (
-    <div className=" sm:mx-auto sm:w-full sm:max-w-sm px-6 py-12 lg:px-8">
+    <div className="sm:mx-auto sm:w-full sm:max-w-sm px-6 py-12 lg:px-8">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label
@@ -103,11 +130,13 @@ export default function TeamsForm(props) {
               type="button"
               onClick={addEmail}
               className="btn btn-primary"
+              disabled={!!emailError}
             >
               Add
             </button>
           </div>
-          <div className="mt-2 bg-white">
+          {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+          <div className="mt-2 bg-white max-h-36 overflow-hidden overflow-y-auto">
             {formData.emails.map((email, index) => (
               <div
                 role="alert"
