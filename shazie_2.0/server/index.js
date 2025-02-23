@@ -7,20 +7,26 @@ const { Server } = require("socket.io");
 const http = require("http");
 
 const app = express();
-const server = http.createServer(app);
 app.use(
   cors({
     origin: "http://localhost:5173", // Specify the frontend URL
     credentials: true, // Allow cookies and authentication headers
   })
 );
+const server = http.createServer(app);
 app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 
 // ✅ Use authentication routes
 app.use("/", require("./routes/authRoutes"));
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Specify the frontend URL
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 const socketID_to_Users_Map = {};
 const roomID_to_Code_Map = {};
