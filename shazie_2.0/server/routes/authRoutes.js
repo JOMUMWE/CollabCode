@@ -9,6 +9,7 @@ const {
   updateUser,
   createTeam,
   getTeams,
+  validate_email,
 } = require("../controllers/authController");
 
 router.get("/", hi);
@@ -19,5 +20,6 @@ router.get("/logout", logoutUser);
 router.post("/updateUser", updateUser);
 router.post("/team", createTeam);
 router.get("/teams/:userId", getTeams);
+router.get("/validate-email", validate_email);
 
 module.exports = router;

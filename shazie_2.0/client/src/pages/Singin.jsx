@@ -26,7 +26,7 @@ export default function Singin() {
       } else {
         toast.success("Logged in!!")
         setData({});
-        navigate("/dashboard");
+        navigate("/dashboard/dash");
       }
     } catch (error) {
       console.log(error);
