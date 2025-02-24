@@ -62,7 +62,7 @@ export default function Room({ socket }) {
 
   function handleLeave() {
     socket.disconnect();
-    !socket.connected && navigate("/", { replace: true, state: {} });
+    !socket.connected && navigate("/dashboard/teams", { replace: true, state: {} });
   }
 
   useEffect(() => {
@@ -102,10 +102,26 @@ export default function Room({ socket }) {
 
   return (
     <div className="room">
-      <div className="roomSidebar">
-        <div className="roomSidebarUsersWrapper">
-          <div className="languageFieldWrapper">
-            <select
+      <div className="roomSidebar bg-gray-800">
+        <div className="flex flex-col items-center ">
+          <div>
+            <details className="dropdown">
+              <summary className="btn m-1">Languages</summary>
+              <select
+                className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+                name="language"
+                id="language"
+                value={language}
+                onChange={handleLanguageChange}
+              >
+                {languagesAvailable.map((eachLanguage) => (
+                  <option key={eachLanguage} value={eachLanguage}>
+                    {eachLanguage}
+                  </option>
+                ))}
+              </select>
+            </details>
+            {/* <select
               className="languageField"
               name="language"
               id="language"
@@ -117,10 +133,10 @@ export default function Room({ socket }) {
                   {eachLanguage}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
 
-          <div className="languageFieldWrapper">
+          {/* <div className="languageFieldWrapper">
             <select
               className="languageField"
               name="codeKeybinding"
@@ -134,9 +150,9 @@ export default function Room({ socket }) {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
-          <p>Connected Users:</p>
+          <p >Connected Users:</p>
           <div className="roomSidebarUsers">
             {fetchedUsers.map((each) => (
               <div key={each} className="roomSidebarUsersEach">
@@ -153,15 +169,7 @@ export default function Room({ socket }) {
         </div>
 
         <button
-          className="roomSidebarCopyBtn"
-          onClick={() => {
-            copyToClipboard(roomId);
-          }}
-        >
-          Copy Room id
-        </button>
-        <button
-          className="roomSidebarBtn"
+          className="btn btn-sm btn-outline btn-error self-end w-[50%] mx-auto"
           onClick={() => {
             handleLeave();
           }}
@@ -171,13 +179,13 @@ export default function Room({ socket }) {
       </div>
 
       <AceEditor
-        placeholder="Write your code here."
+        placeholder="Happy Coding!!!"
         className="roomCodeEditor"
         mode={language}
         keyboardHandler={codeKeybinding}
         theme="monokai"
         name="collabEditor"
-        width="auto"
+        width="full"
         height="auto"
         value={fetchedCode}
         onChange={onChange}

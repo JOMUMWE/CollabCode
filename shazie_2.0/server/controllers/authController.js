@@ -6,6 +6,7 @@ const {
   Commit,
   VersionControl,
   Team,
+  Room,
 } = require("../models/user");
 const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
@@ -18,6 +19,38 @@ const logoutUser = (req, res) => {
   res.cookie("token", "", { maxAge: 1 });
   res.json("logged out");
 };
+
+const createRoom = async (req, res) => {
+  try{
+    const {roomid,teamid,creatorId} = req.body;
+    const exist = await Room.findOne({ roomid });
+    if (exist) {
+      return res.json({
+        error: "roomid already exists",
+      });
+    }
+    const room = await Room.create({
+      roomid,
+      teamid,
+      creatorId,
+    });
+
+    return res.json(room);
+  }catch(error){
+     console.log(error);
+  }
+}
+
+const getRoom = async  (req, res) => {
+  const { teamId } = req.params;
+  const room = await Room.findOne({ teamid: teamId });
+    if (!room) {
+      return res.json({
+        data: false,
+      });
+    }
+  res.json({data:room._id});
+}
 
 const registerUser = async (req, res) => {
   try {
@@ -236,4 +269,6 @@ module.exports = {
   createTeam,
   getTeams,
   validate_email,
+  createRoom,
+  getRoom,
 };

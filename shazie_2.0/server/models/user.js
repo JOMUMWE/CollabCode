@@ -68,6 +68,17 @@ const TeamSchema = new mongoose.Schema({
   },
 });
 
+const RoomSchema = new mongoose.Schema({
+  roomId: { type: String, unique: true },
+  teamId: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  active: { type: Boolean, default: true },
+});
+
+
 module.exports = {
   User: mongoose.model("User", userSchema),
   Project: mongoose.model("Project", projectSchema),
@@ -76,6 +87,6 @@ module.exports = {
   Commit: mongoose.model("Commit", commitSchema),
   VersionControl: mongoose.model("VersionControl", versionControlSchema),
   Team: mongoose.model("Team", TeamSchema),
+  Room: mongoose.model("Room", RoomSchema),
 };
-// const userModel = mongoose.model('User', userSchema)
-// module.exports = userModel
+

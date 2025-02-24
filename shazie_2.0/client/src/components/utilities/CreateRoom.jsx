@@ -2,38 +2,68 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4, validate } from "uuid";
 import { toast } from "react-hot-toast";
+import axios from "axios";
+import { useEffect } from "react";
 
 export default function CreateRoom(props) {
   const navigate = useNavigate();
-  const [roomId, setRoomId] = useState(() => "");
+  const [roomId, setRoomId] = useState(() => false);
+  const [roomId2, setRoomId2] = useState(() => false);
   const [username, setUsername] = useState(() => "");
 
   let allowedUser = [];
-  props.team.forEach((element) => {
-    allowedUser.push(element.name);
-  });
 
-  function handleRoomSubmit(e) {
+  const getroom = async () => {
+    await axios.get(`/getroom/${props.teamId}`).then(({ data }) => {
+      setRoomId2(data.data);
+    });
+  };
+  useEffect(() => {
+    getroom();}, []);
+  async function handleRoomSubmit(e) {
+    props.team.forEach((element) => {
+      allowedUser.push(element.name);
+    });
     e.preventDefault();
     setUsername(() => props.username);
-    console.log(username);
-    if (!validate(roomId)) {
-      toast.error("Incorrect room ID");
-      return;
-    }
-    if (allowedUser.includes(username)) {
-      username && navigate(`/room/${roomId}`, { state: { username } });
-    } else {
-      toast.error("User not allowed in room");
-      return;
-    }
+    try {
+      if(roomId2){
+        if (allowedUser.includes(username)) {
+          username && navigate(`/room/${roomId2}`, { state: { username } });
+        } 
+      }else {
+      if (!validate(roomId)) {
+        toast.error("Incorrect room ID");
+        return;
+      }
+      const { data } = await axios.post("/roomcreate", {
+        roomid: roomId || roomId2,
+        teamid: props.teamId,
+        creatorId: props.creatorId,
+      });
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Room created!");
+      }
+      if (allowedUser.includes(username)) {
+        username && navigate(`/room/${roomId}`, { state: { username } });
+      } else {
+        toast.error("User not allowed in room");
+        return;
+      }}
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong!");
+    } 
   }
 
   function createRoomId(e) {
     e.preventDefault();
     try {
       setRoomId(uuidv4());
-      toast.success("Room created");
+
+      toast.success("Room ID created");
     } catch (exp) {
       console.error(exp);
     }
@@ -41,7 +71,7 @@ export default function CreateRoom(props) {
 
   return (
     <>
-      {roomId == "" ? (
+      {!roomId2 ? (
         <button
           onClick={createRoomId}
           className="btn btn-sm btn-primary md:w-4/12 mt-2 sm:w-6/12"
