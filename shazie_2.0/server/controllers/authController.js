@@ -6,8 +6,8 @@ const {
   Commit,
   VersionControl,
   Team,
-  Room,
 } = require("../models/user");
+const {v4} = require("uuid");
 const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
@@ -20,37 +20,6 @@ const logoutUser = (req, res) => {
   res.json("logged out");
 };
 
-const createRoom = async (req, res) => {
-  try{
-    const {roomid,teamid,creatorId} = req.body;
-    const exist = await Room.findOne({ roomid });
-    if (exist) {
-      return res.json({
-        error: "roomid already exists",
-      });
-    }
-    const room = await Room.create({
-      roomid,
-      teamid,
-      creatorId,
-    });
-
-    return res.json(room);
-  }catch(error){
-     console.log(error);
-  }
-}
-
-const getRoom = async  (req, res) => {
-  const { teamId } = req.params;
-  const room = await Room.findOne({ teamid: teamId });
-    if (!room) {
-      return res.json({
-        data: false,
-      });
-    }
-  res.json({data:room._id});
-}
 
 const registerUser = async (req, res) => {
   try {
@@ -200,13 +169,14 @@ const createTeam = async (req, res) => {
     const allMembers = [
       ...new Set([creator._id, ...members.map((user) => user._id)]),
     ];
-
+    const roomid = v4();
     // Create new team
     const team = await Team.create({
       teamName: name,
       members: allMembers, // Store member IDs
       projects: [],
       createdBy: creatorId,
+      roomId: roomid,
     });
 
     // Save the team to the database
@@ -231,8 +201,9 @@ const getTeams = async (req, res) => {
       $or: [{ members: userId }, { createdBy: userId }],
     })
       .populate("members", "name email") // Populate member details
-      .populate("createdBy", "name email") // Populate creator details
-      .populate("projects", "projectName"); // Populate associated projects (if needed)
+      .populate("createdBy", "name email _id") // Populate creator details
+      .populate("projects", "projectName") // Populate associated projects (if needed)
+      .populate("roomId");
 
     if (!teams.length) {
       return res.status(404).json({ message: "No teams found for this user" });
@@ -269,6 +240,4 @@ module.exports = {
   createTeam,
   getTeams,
   validate_email,
-  createRoom,
-  getRoom,
 };

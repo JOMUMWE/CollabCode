@@ -99,7 +99,7 @@ export default function Teams(props) {
                       </table>
                     </div>
                     <div className="flex flex-row justify-end">
-                      <CreateRoom username={username} team={teamItem.members} teamId={teamItem._id} creatorId={teamItem.createdBy.id} />
+                      <CreateRoom username={username} team={teamItem.members} teamId={teamItem._id} creatorId={teamItem.createdBy._id} roomId ={teamItem.roomId} />
                     </div>
                   </ul>
                 </li>

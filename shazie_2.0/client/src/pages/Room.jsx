@@ -136,7 +136,7 @@ export default function Room({ socket }) {
             </select> */}
           </div>
 
-          {/* <div className="languageFieldWrapper">
+          <div className="languageFieldWrapper">
             <select
               className="languageField"
               name="codeKeybinding"
@@ -150,7 +150,7 @@ export default function Room({ socket }) {
                 </option>
               ))}
             </select>
-          </div> */}
+          </div>
 
           <p >Connected Users:</p>
           <div className="roomSidebarUsers">
