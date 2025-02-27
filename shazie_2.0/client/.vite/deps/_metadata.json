@@ -1,0 +1,163 @@
+{
+  "hash": "d66a00aa",
+  "configHash": "85ccbdde",
+  "lockfileHash": "4f3e08de",
+  "browserHash": "96ed5726",
+  "optimized": {
+    "@headlessui/react": {
+      "src": "../../node_modules/@headlessui/react/dist/headlessui.esm.js",
+      "file": "@headlessui_react.js",
+      "fileHash": "889d4c60",
+      "needsInterop": false
+    },
+    "@heroicons/react/outline": {
+      "src": "../../node_modules/@heroicons/react/outline/esm/index.js",
+      "file": "@heroicons_react_outline.js",
+      "fileHash": "15234b58",
+      "needsInterop": false
+    },
+    "ace-builds/src-noconflict/ext-language_tools": {
+      "src": "../../node_modules/ace-builds/src-noconflict/ext-language_tools.js",
+      "file": "ace-builds_src-noconflict_ext-language_tools.js",
+      "fileHash": "c4d2a5f2",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/ext-searchbox": {
+      "src": "../../node_modules/ace-builds/src-noconflict/ext-searchbox.js",
+      "file": "ace-builds_src-noconflict_ext-searchbox.js",
+      "fileHash": "06b6ebf0",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/keybinding-emacs": {
+      "src": "../../node_modules/ace-builds/src-noconflict/keybinding-emacs.js",
+      "file": "ace-builds_src-noconflict_keybinding-emacs.js",
+      "fileHash": "eb0c71c0",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/keybinding-vim": {
+      "src": "../../node_modules/ace-builds/src-noconflict/keybinding-vim.js",
+      "file": "ace-builds_src-noconflict_keybinding-vim.js",
+      "fileHash": "229789a0",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-c_cpp": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-c_cpp.js",
+      "file": "ace-builds_src-noconflict_mode-c_cpp.js",
+      "fileHash": "6b5ca515",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-css": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-css.js",
+      "file": "ace-builds_src-noconflict_mode-css.js",
+      "fileHash": "61fc2cf7",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-golang": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-golang.js",
+      "file": "ace-builds_src-noconflict_mode-golang.js",
+      "fileHash": "f893ed42",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-html": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-html.js",
+      "file": "ace-builds_src-noconflict_mode-html.js",
+      "fileHash": "f9f7fe96",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-java": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-java.js",
+      "file": "ace-builds_src-noconflict_mode-java.js",
+      "fileHash": "3b39f4cd",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-javascript": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-javascript.js",
+      "file": "ace-builds_src-noconflict_mode-javascript.js",
+      "fileHash": "ef1d25f6",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-python": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-python.js",
+      "file": "ace-builds_src-noconflict_mode-python.js",
+      "fileHash": "17c943e7",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-typescript": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-typescript.js",
+      "file": "ace-builds_src-noconflict_mode-typescript.js",
+      "fileHash": "dc97a60c",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/mode-yaml": {
+      "src": "../../node_modules/ace-builds/src-noconflict/mode-yaml.js",
+      "file": "ace-builds_src-noconflict_mode-yaml.js",
+      "fileHash": "43c57b20",
+      "needsInterop": true
+    },
+    "ace-builds/src-noconflict/theme-monokai": {
+      "src": "../../node_modules/ace-builds/src-noconflict/theme-monokai.js",
+      "file": "ace-builds_src-noconflict_theme-monokai.js",
+      "fileHash": "f11b7a45",
+      "needsInterop": true
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "516dd09f",
+      "needsInterop": false
+    },
+    "lodash.debounce": {
+      "src": "../../node_modules/lodash.debounce/index.js",
+      "file": "lodash__debounce.js",
+      "fileHash": "8d1e5887",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "2bb21750",
+      "needsInterop": true
+    },
+    "react-ace": {
+      "src": "../../node_modules/react-ace/lib/index.js",
+      "file": "react-ace.js",
+      "fileHash": "73b1a3d6",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "6da9f725",
+      "needsInterop": true
+    },
+    "react-hot-toast": {
+      "src": "../../node_modules/react-hot-toast/dist/index.mjs",
+      "file": "react-hot-toast.js",
+      "fileHash": "d5f42a46",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "1321b43a",
+      "needsInterop": false
+    },
+    "socket.io-client": {
+      "src": "../../node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "250f842e",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-TKHB4QMX": {
+      "file": "chunk-TKHB4QMX.js"
+    },
+    "chunk-YLDSBLSF": {
+      "file": "chunk-YLDSBLSF.js"
+    },
+    "chunk-DC5AMYBS": {
+      "file": "chunk-DC5AMYBS.js"
+    }
+  }
+}
