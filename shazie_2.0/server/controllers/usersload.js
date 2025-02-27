@@ -13,7 +13,7 @@ mongoose
   .catch((err) => console.log("❌ Database not connected", err));
 
 // Read JSON file
-const usersData = JSON.parse(fs.readFileSync("MOCK_DATA(1).json", "utf-8"));
+const usersData = JSON.parse(fs.readFileSync("MOCK_DATA(3).json", "utf-8"));
 
 async function importUsers() {
   try {

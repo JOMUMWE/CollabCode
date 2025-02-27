@@ -23,7 +23,7 @@ const logoutUser = (req, res) => {
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email,phone,role, password } = req.body;
     //check if name has been entered
     if (!name) {
       return res.json({
@@ -41,6 +41,8 @@ const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       email,
+      phone,
+      role,
       password: hashedPassword,
     });
 
@@ -63,7 +65,7 @@ const loginUser = async (req, res) => {
     const match = await comparePassword(password, user.password);
     if (match) {
       jwt.sign(
-        { email: user.email, id: user._id, name: user.name },
+        { email: user.email, id: user._id, name: user.name, role: user.role , phone:user.phone},
         process.env.JWT_SECRET,
         {},
         (err, token) => {

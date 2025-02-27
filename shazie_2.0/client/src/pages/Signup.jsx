@@ -3,13 +3,14 @@ import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
 import { toast } from 'react-hot-toast'
+import { ChevronDownIcon } from "@heroicons/react/solid";
 
 
 // import Authgitgoogle from '../compolnents/authgitgooge';
 
 export default function Signup() {
   const [active, setActive] = useState(true)
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone : '', role: 'Team Manager', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState('');
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     setActive(false)
     e.preventDefault();
-    const { name, email, password } = formData
+    const { name, email, phone, role, password } = formData
 
     if (formData.password !== formData.confirmPassword) {
       setError('❌ Passwords do not match!');
@@ -61,7 +62,7 @@ export default function Signup() {
     setError('');
 
     try {
-      const { data } = await axios.post('/register', { name, email, password })
+      const { data } = await axios.post('/register', { name, email, phone, role, password })
       if (data.error) {
         toast.error(data.error)
         setActive(true)
@@ -82,14 +83,17 @@ export default function Signup() {
           <img alt="Your Company" src={png} className="mx-auto h-10 w-auto" />
         </a>
         <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-gray-900">
-          Sign up for your account
+          Sign up for an account
         </h2>
       </div>
 
       <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-900">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-900"
+            >
               Full Name
             </label>
             <input
@@ -104,7 +108,10 @@ export default function Signup() {
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-900">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-900"
+            >
               Email address
             </label>
             <input
@@ -118,9 +125,56 @@ export default function Signup() {
               className="block w-full rounded-md bg-white px-3 py-1 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
             />
           </div>
-
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-900">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-900"
+            >
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              pattern="[0-9]{10}"
+              required
+              value={formData.phone}
+              onChange={handleChange}
+              autoComplete="email"
+              className="block w-full rounded-md bg-white px-3 py-1 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
+            />
+          </div>
+          <div className="sm:col-span-3">
+            <label
+              htmlFor="role"
+              className="block text-sm/6 font-medium text-gray-900"
+            >
+              Role
+            </label>
+            <div className="mt-2 grid grid-cols-1">
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                autoComplete="country-name"
+                className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 outline"
+              >
+                <option value="Team Manager">Team Manager</option>
+                <option value="Junior Developer">Junior Developer</option>
+                <option value="Senior Developer">Senior Develop</option>
+              </select>
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-900"
+            >
               Password
             </label>
             <input
@@ -133,13 +187,21 @@ export default function Signup() {
               autoComplete="new-password"
               className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
             />
-            <p className={`mt-1 text-xs ${passwordStrength.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
+            <p
+              className={`mt-1 text-xs ${
+                passwordStrength.includes("✅")
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
               {passwordStrength}
             </p>
           </div>
-
           <div>
-            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-900">
+            <label
+              htmlFor="confirm-password"
+              className="block text-sm font-medium text-gray-900"
+            >
               Confirm Password
             </label>
             <input
@@ -153,22 +215,24 @@ export default function Signup() {
               className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
             />
           </div>
-
           {error && <p className="text-red-500 text-xs">{error}</p>}
-
           <button
             type="submit"
-            className={active ?
-              "flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
-              : "flex w-full justify-center rounded-md bg-indigo-400 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+            className={
+              active
+                ? "flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+                : "flex w-full justify-center rounded-md bg-indigo-400 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
             }
           >
-            {active ? 'Signup' : "Signing you up..."}
+            {active ? "Signup" : "Signing you up..."}
           </button>
         </form>
         <p className="mt-10 text-center text-sm/6 text-gray-500">
-          Have an account?{' '}
-          <a href="/signin" className="font-semibold text-indigo-600 hover:text-indigo-500">
+          Have an account?{" "}
+          <a
+            href="/signin"
+            className="font-semibold text-indigo-600 hover:text-indigo-500"
+          >
             Sign in
           </a>
         </p>
