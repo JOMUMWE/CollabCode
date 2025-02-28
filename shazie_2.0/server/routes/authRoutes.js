@@ -10,6 +10,8 @@ const {
   createTeam,
   getTeams,
   validate_email,
+  updateProfilePic,
+  getProfilePic,
 } = require("../controllers/authController");
 
 router.get("/", hi);
@@ -21,6 +23,8 @@ router.post("/updateUser", updateUser);
 router.post("/team", createTeam);
 router.get("/teams/:userId", getTeams);
 router.get("/validate-email", validate_email);
+router.post("/updateProfilePic", updateProfilePic);
+router.get("/getProfilePic/:id", getProfilePic);
 
 
 module.exports = router;

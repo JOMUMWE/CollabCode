@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 
 
 export default function Example() {
+  const [profilePic, setProfilePic] = useState(false);
   const [user, setUser] = useState("");
   useEffect(() => {
     if (!user) {
@@ -18,6 +19,20 @@ export default function Example() {
     }
 
   }, []);
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      try {
+        const { data } = await axios.get(`/getProfilePic/${user.id}`);
+        if (data.profilePic) {
+          setProfilePic(data.profilePic);
+        }
+      } catch (error) {
+        console.error("Error fetching profile picture:", error);
+      }
+    };
+
+    fetchProfilePic();
+  }, [user.id]);
   const navigate = useNavigate();
   const navigation = [
     { name: 'Dashboard', href: '/dashboard/dash', current: false },
@@ -48,17 +63,21 @@ export default function Example() {
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <ArrowRightIcon aria-hidden="true" className="block size-4 group-data-open:hidden" />
-              <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
+              <ArrowRightIcon
+                aria-hidden="true"
+                className="block size-4 group-data-open:hidden"
+              />
+              <XIcon
+                aria-hidden="true"
+                className="hidden size-6 group-data-open:block"
+              />
             </DisclosureButton>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
-              <a href='/'><img
-                alt="Your Company"
-                src={png}
-                className="h-8 w-auto"
-              /></a>
+              <a href="/">
+                <img alt="Your Company" src={png} className="h-8 w-auto" />
+              </a>
             </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
@@ -66,10 +85,12 @@ export default function Example() {
                   <a
                     key={item.name}
                     href={item.href}
-                    aria-current={item.current ? 'page' : undefined}
+                    aria-current={item.current ? "page" : undefined}
                     className={classNames(
-                      item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                      'rounded-md px-3 py-2 text-sm font-medium',
+                      item.current
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                      "rounded-md px-3 py-2 text-sm font-medium"
                     )}
                   >
                     {item.name}
@@ -90,17 +111,21 @@ export default function Example() {
 
             {/* Profile dropdown */}
             <Menu as="div" className="relative ml-3">
-              <div className='flex justify-between items-center'>
+              <div className="flex justify-between items-center">
                 <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden hover:cursor-pointer">
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
                   <img
                     alt=""
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    className="size-8 rounded-full"
+                    src={
+                      profilePic
+                        ? profilePic
+                        : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    }
+                    className="size-8 rounded-full object-cover "
                   />
                 </MenuButton>
-                <p className=' text-xs text-white ml-2'>{user.name}</p>
+                <p className=" text-xs text-white ml-2">{user.name}</p>
               </div>
               <MenuItems
                 transition
@@ -143,10 +168,12 @@ export default function Example() {
               key={item.name}
               as="a"
               href={item.href}
-              aria-current={item.current ? 'page' : undefined}
+              aria-current={item.current ? "page" : undefined}
               className={classNames(
-                item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                'block rounded-md px-3 py-2 text-base font-medium',
+                item.current
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >
               {item.name}
@@ -155,5 +182,5 @@ export default function Example() {
         </div>
       </DisclosurePanel>
     </Disclosure>
-  )
+  );
 }

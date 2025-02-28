@@ -1,6 +1,53 @@
-
+import { ChevronDownIcon } from "@heroicons/react/solid";
+import axios from "axios";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function EditProfBtn(props) {
+  const navigate = useNavigate();
+  const name = props.user.name;
+  const email = props.user.email;
+  const phone = props.user.phone;
+  const role = props.user.role;
+  const [formData, setFormData] = useState({
+    name: name,
+    email: email,
+    phone: phone,
+    role: role,
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+  const handleSubmit = async (e) => {
+    
+    e.preventDefault();
+    const { name, email, phone, role} = formData;
+
+    try {
+      const { data } = await axios.post("/updateUser", {
+        id : props.user.id,
+        name: name,
+        email: email,
+        phone : phone,
+        role : role,
+      });
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        setFormData({});
+        toast.success(data.data);
+        axios.get("/logout").then(() => {
+          toast.success("logged out");
+          navigate("/signin");
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <button
@@ -34,55 +81,9 @@ export default function EditProfBtn(props) {
               Update your details to keep your profile up-to-date.
             </p>
           </div>
-          <form className="flex flex-col w-full">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <label>Facebook</label>
-                    <input
-                      placeholder="Type here"
-                      className="input input-bordered w-full max-w-xs"
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <label>X.com</label>
-                    <input
-                      placeholder="Type here"
-                      className="input input-bordered w-full max-w-xs"
-                      type="text"
-                      value="https://x.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <label>Linkedin</label>
-                    <input
-                      placeholder="Type here"
-                      className="input input-bordered w-full max-w-xs"
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <label>Instagram</label>
-                    <input
-                      placeholder="Type here"
-                      className="input input-bordered w-full max-w-xs"
-                      type="text"
-                      value="https://instagram.com/PimjoHQ"
-                    />
-                  </div>
-                </div>
-              </div>
+          <form onSubmit={handleSubmit} className="flex flex-col w-full">
+            <div className="custom-scrollbar h-[40vh] overflow-y-auto px-2 pb-3">
+              <div></div>
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
@@ -90,43 +91,67 @@ export default function EditProfBtn(props) {
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <label>Names</label>
+                    <label htmlFor="name">Names</label>
                     <input
+                      id="name"
+                      name="name"
                       placeholder="your name"
                       className="input input-bordered w-full max-w-xs"
                       type="text"
-                      value={props.user.name}
+                      value={formData.name}
+                      onChange={handleChange}
                     />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <label>Email Address</label>
+                    <label htmlFor="email">Email Address</label>
                     <input
+                      id="email"
+                      name="email"
                       placeholder="your email"
                       className="input input-bordered w-full max-w-xs"
                       type="text"
-                      value={props.user.email}
+                      value={formData.email}
+                      onChange={handleChange}
                     />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <label>Phone</label>
+                    <label htmlFor="phone">Phone Number</label>
                     <input
+                      id="phone"
+                      name="phone"
                       placeholder="Type here"
                       className="input input-bordered w-full max-w-xs"
-                      type="text"
-                      value="+09 363 398 46"
+                      value={formData.phone}
+                      type="tel"
+                      pattern="[0-9]{10}"
+                      onChange={handleChange}
                     />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <label>Bio</label>
-                    <input
-                      placeholder="Type here"
-                      className="input input-bordered w-full max-w-xs"
-                      type="text"
-                      value="Team Manager"
-                    />
+                    <label htmlFor="role">Role</label>
+                    <div className="mt-2 grid grid-cols-1">
+                      <select
+                        id="role"
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        autoComplete="country-name"
+                        className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 outline"
+                      >
+                        <option value="Team Manager">Team Manager</option>
+                        <option value="Junior Developer">
+                          Junior Developer
+                        </option>
+                        <option value="Senior Developer">Senior Develop</option>
+                      </select>
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -136,7 +161,7 @@ export default function EditProfBtn(props) {
                 {/* if there is a button, it will close the modal */}
                 <button className="btn btn-warning">Close</button>
               </form>
-              <button className="btn btn-success" size="sm">
+              <button type="submit" className="btn btn-success" size="sm">
                 Save Changes
               </button>
             </div>

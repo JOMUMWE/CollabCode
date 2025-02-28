@@ -13,7 +13,7 @@ const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
 
 const hi = (req, res) => {
-  res.json("hi");
+  res.json("shaboozieeee");
 };
 const logoutUser = (req, res) => {
   res.cookie("token", "", { maxAge: 1 });
@@ -114,31 +114,20 @@ const updateProfile = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const { name, password, phoneNumber, id } = req.body;
-  if (!password || password.length < 6) {
-    return res.json({
-      error: "Password is required and should be at least 6 characters length",
-    });
-  }
-  //check if passowrd is good
-  if (!password || password.length < 6) {
-    return res.json({
-      error: "Password is required and should be at least 6 characters length",
-    });
-  }
-  const hashedPassword = await hashPassword(password);
+  const { id, name, email, phone, role } = req.body;
   try {
     await User.updateOne(
       { _id: id },
       {
         $set: {
           name: name,
-          password: hashedPassword,
-          phoneNumber: phoneNumber,
+          email: email,
+          phone: phone,
+          role: role,
         },
       }
     );
-    return res.json({ status: "ok", data: "updated" });
+    return res.json({ status: "ok", data: "profile updated" });
   } catch (error) {
     return res.json({ error: error });
   }
@@ -232,6 +221,41 @@ const validate_email = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+const updateProfilePic = async (req, res) => {
+  const { image, id } = req.body;
+  
+  try {
+    await User.updateOne(
+      { _id: id },
+      {
+        $set: {
+          profilePic: image,
+        },
+      }
+    );
+    return res.json({ status: "ok", data: "updated" });
+  } catch (error) {
+    return res.json({ error: error });
+  }
+};
+
+// Endpoint to get profile picture
+const getProfilePic = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user || !user.profilePic) {
+      return res.status(404).json({ error: "Profile picture not found" });
+    }
+    res.json({ profilePic: user.profilePic });
+  } catch (error) {
+    return res.json({ error: error });
+  }
+};
+
+
 module.exports = {
   hi,
   registerUser,
@@ -242,4 +266,6 @@ module.exports = {
   createTeam,
   getTeams,
   validate_email,
+  updateProfilePic,
+  getProfilePic,
 };
