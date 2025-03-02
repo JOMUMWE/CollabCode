@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 const http = require("http");
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+var bodyParser = require("body-parser");
 
 const app = express();
 app.use(
@@ -14,12 +17,58 @@ app.use(
   })
 );
 const server = http.createServer(app);
+app.use(bodyParser.json());
 app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 
 // ✅ Use authentication routes
 app.use("/", require("./routes/authRoutes"));
+
+//github login logic
+const CLIENT_SECRET = "6e01d1e3a20862e0e560aa9144b9bf500bcd0548";
+const CLIENT_ID = "Ov23lisfPDlM75x2Tfg5";
+
+app.get("/getAccessToken", async (req, res) => {
+  const code = req.query.code;
+
+  const params =
+    "?client_id=" +
+    CLIENT_ID +
+    "&client_secret=" +
+    CLIENT_SECRET +
+    "&code=" +
+    code;
+  await fetch("https://github.com/login/oauth/access_token" + params, {
+    mathod: "POST",
+    headers: {
+      Accept: "application/json",
+    },
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      res.json(data);
+    });
+});
+
+app.get('/getUserData', async (req, res) => {
+  req.get('Authorization');
+  await fetch("https://api.github.com/user", {
+    method: "GET",
+    headers: {
+      Authorization: req.get("Authorization"),
+    },
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      res.json(data);
+    });
+});
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173", // Specify the frontend URL
@@ -122,6 +171,28 @@ io.on("connection", function (socket) {
         .in(roomId)
         .emit("on code change", { code: roomID_to_Code_Map[roomId].code });
     }
+  });
+
+  // WebRTC signaling
+  socket.on("webrtc-offer", (data) => {
+    socket.to(data.target).emit("webrtc-offer", {
+      sdp: data.sdp,
+      caller: socket.id,
+    });
+  });
+
+  socket.on("webrtc-answer", (data) => {
+    socket.to(data.target).emit("webrtc-answer", {
+      sdp: data.sdp,
+      caller: socket.id,
+    });
+  });
+
+  socket.on("webrtc-ice-candidate", (data) => {
+    socket.to(data.target).emit("webrtc-ice-candidate", {
+      candidate: data.candidate,
+      caller: socket.id,
+    });
   });
 
   socket.on("leave room", ({ roomId }) => {

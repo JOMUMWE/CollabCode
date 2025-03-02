@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import AceEditor from "react-ace";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -25,10 +25,11 @@ import "ace-builds/src-noconflict/ext-searchbox";
 export default function Room({ socket }) {
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const [fetchedUsers, setFetchedUsers] = useState(() => []);
-  const [fetchedCode, setFetchedCode] = useState(() => "");
-  const [language, setLanguage] = useState(() => "javascript");
-  const [codeKeybinding, setCodeKeybinding] = useState(() => undefined);
+  const [fetchedUsers, setFetchedUsers] = useState([]);
+  const [fetchedCode, setFetchedCode] = useState("");
+  const [language, setLanguage] = useState("javascript");
+  const [codeKeybinding, setCodeKeybinding] = useState(undefined);
+  const peerConnections = useRef({});
 
   const languagesAvailable = [
     "javascript",
@@ -45,13 +46,13 @@ export default function Room({ socket }) {
   function onChange(newValue) {
     setFetchedCode(newValue);
     socket.emit("update code", { roomId, code: newValue });
-    socket.emit("syncing the code", { roomId: roomId });
+    socket.emit("syncing the code", { roomId });
   }
 
   function handleLanguageChange(e) {
     setLanguage(e.target.value);
     socket.emit("update language", { roomId, languageUsed: e.target.value });
-    socket.emit("syncing the language", { roomId: roomId });
+    socket.emit("syncing the language", { roomId });
   }
 
   function handleCodeKeybindingChange(e) {
@@ -62,7 +63,8 @@ export default function Room({ socket }) {
 
   function handleLeave() {
     socket.disconnect();
-    !socket.connected && navigate("/dashboard/teams", { replace: true, state: {} });
+    !socket.connected &&
+      navigate("/dashboard/teams", { replace: true, state: {} });
   }
 
   useEffect(() => {
@@ -100,6 +102,109 @@ export default function Room({ socket }) {
     };
   }, [socket]);
 
+  useEffect(() => {
+    // Get user media
+    navigator.mediaDevices
+      .getUserMedia({ audio: true, video: false })
+      .then((stream) => {
+        const localAudio = document.querySelector("#localAudio");
+        localAudio.srcObject = stream;
+
+        socket.on("webrtc-offer", async ({ sdp, caller }) => {
+          console.log("Received offer from", caller);
+          const peerConnection = new RTCPeerConnection();
+          peerConnections.current[caller] = peerConnection;
+
+          peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+              socket.emit("webrtc-ice-candidate", {
+                target: caller,
+                candidate: event.candidate,
+              });
+            }
+          };
+
+          peerConnection.ontrack = (event) => {
+            console.log("Received remote stream");
+            const remoteAudio = document.querySelector("#remoteAudio");
+            remoteAudio.srcObject = event.streams[0];
+          };
+
+          stream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, stream);
+          });
+
+          await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(sdp)
+          );
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+
+          socket.emit("webrtc-answer", {
+            target: caller,
+            sdp: peerConnection.localDescription,
+          });
+        });
+
+        socket.on("webrtc-answer", async ({ sdp, caller }) => {
+          console.log("Received answer from", caller);
+          const peerConnection = peerConnections.current[caller];
+          await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(sdp)
+          );
+        });
+
+        socket.on("webrtc-ice-candidate", ({ candidate, caller }) => {
+          console.log("Received ICE candidate from", caller);
+          const peerConnection = peerConnections.current[caller];
+          peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        });
+
+        socket.on("new member joined", async ({ username }) => {
+          console.log("New member joined:", username);
+          const peerConnection = new RTCPeerConnection();
+          peerConnections.current[socket.id] = peerConnection;
+
+          peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+              socket.emit("webrtc-ice-candidate", {
+                target: socket.id,
+                candidate: event.candidate,
+              });
+            }
+          };
+
+          peerConnection.ontrack = (event) => {
+            console.log("Received remote stream");
+            const remoteAudio = document.querySelector("#remoteAudio");
+            remoteAudio.srcObject = event.streams[0];
+          };
+
+          stream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, stream);
+          });
+
+          const offer = await peerConnection.createOffer();
+          await peerConnection.setLocalDescription(offer);
+
+          socket.emit("webrtc-offer", {
+            target: socket.id,
+            sdp: peerConnection.localDescription,
+          });
+        });
+      })
+      .catch((error) => {
+        console.error("Error accessing media devices.", error);
+      });
+
+    return () => {
+      Object.values(peerConnections.current).forEach((peerConnection) => {
+        peerConnection.close();
+      });
+      peerConnections.current = {};
+    };
+  }, [socket, roomId]);
+
   return (
     <div className="room">
       <div className="roomSidebar bg-gray-800">
@@ -121,19 +226,6 @@ export default function Room({ socket }) {
                 ))}
               </select>
             </details>
-            {/* <select
-              className="languageField"
-              name="language"
-              id="language"
-              value={language}
-              onChange={handleLanguageChange}
-            >
-              {languagesAvailable.map((eachLanguage) => (
-                <option key={eachLanguage} value={eachLanguage}>
-                  {eachLanguage}
-                </option>
-              ))}
-            </select> */}
           </div>
 
           <div className="languageFieldWrapper">
@@ -152,7 +244,7 @@ export default function Room({ socket }) {
             </select>
           </div>
 
-          <p >Connected Users:</p>
+          <p>Connected Users:</p>
           <div className="roomSidebarUsers">
             {fetchedUsers.map((each) => (
               <div key={each} className="roomSidebarUsersEach">
@@ -203,6 +295,10 @@ export default function Room({ socket }) {
         }}
       />
       <Toaster />
+      <div>
+        <audio id="localAudio" autoPlay muted className="audio" />
+        <audio id="remoteAudio" autoPlay className="audio" />
+      </div>
     </div>
   );
 }
