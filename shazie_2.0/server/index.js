@@ -12,8 +12,10 @@ var bodyParser = require("body-parser");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173", // Specify the frontend URL
-    credentials: true, // Allow cookies and authentication headers
+    origin: "https://5173-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io",
+    credentials: true,
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 const server = http.createServer(app);
@@ -69,9 +71,9 @@ app.get('/getUserData', async (req, res) => {
     });
 });
 
-const io = new Server(server, {
+const io = require("socket.io")(server, {
   cors: {
-    origin: "http://localhost:5173", // Specify the frontend URL
+    origin: ["https://5173-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io"],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -205,6 +207,13 @@ io.on("connection", function (socket) {
       if (eachRoom in roomID_to_Code_Map) {
         updateUserslistAndCodeMap(io, socket, eachRoom);
       }
+    });
+  });
+
+  socket.on("chat message", ({ roomId, message, username }) => {
+    socket.to(roomId).emit("chat message", {
+      username,
+      message,
     });
   });
 

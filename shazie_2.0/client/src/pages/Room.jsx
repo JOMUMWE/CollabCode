@@ -30,6 +30,9 @@ export default function Room({ socket }) {
   const [language, setLanguage] = useState("javascript");
   const [codeKeybinding, setCodeKeybinding] = useState(undefined);
   const peerConnections = useRef({});
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
+
 
   const languagesAvailable = [
     "javascript",
@@ -67,6 +70,31 @@ export default function Room({ socket }) {
       navigate("/dashboard/teams", { replace: true, state: {} });
   }
 
+ const handleSendMessage = () => {
+   if (messageInput.trim()) {
+     const messageData = {
+       roomId,
+       message: messageInput,
+       username: socket.id, // Using socket.id as identifier
+     };
+
+     // Add message locally
+     setMessages((prev) => [
+       ...prev,
+       {
+         username: "You",
+         text: messageInput,
+       },
+     ]);
+
+     // Send to others
+     socket.emit("chat message", messageData);
+     setMessageInput("");
+   }
+ };
+
+
+
   useEffect(() => {
     socket.on("updating client list", ({ userslist }) => {
       setFetchedUsers(userslist);
@@ -86,6 +114,17 @@ export default function Room({ socket }) {
 
     socket.on("member left", ({ username }) => {
       toast(`${username} left`);
+    });
+
+    // Add this in your first useEffect block
+    socket.on("chat message", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          username: data.username,
+          text: data.message,
+        },
+      ]);
     });
 
     const backButtonEventListner = window.addEventListener(
@@ -259,7 +298,37 @@ export default function Room({ socket }) {
             ))}
           </div>
         </div>
+        <div className="chat-container bg-base-200 rounded-lg p-4 my-4 h-[300px] flex flex-col">
+          <div className="chat-messages overflow-y-auto flex-grow mb-2">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`chat-message mb-2 ${
+                  msg.username === "You" ? "text-right" : "text-left"
+                }`}
+              >
+                <span
+                  className="font-bold"
+                  style={{ color: generateColor(msg.username) }}
+                >
+                  {msg.username}
+                </span>
+                <span className="ml-2">{msg.text}</span>
+              </div>
+            ))}
+          </div>
 
+          <div className="chat-input-container">
+            <input
+              type="text"
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              placeholder="Type a message..."
+              className="input input-bordered w-full"
+            />
+          </div>
+        </div>
         <button
           className="btn btn-sm btn-outline btn-error self-end w-[50%] mx-auto"
           onClick={() => {

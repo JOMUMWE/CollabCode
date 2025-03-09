@@ -14,7 +14,8 @@ import { useState } from "react";
 import SocketWrapper from "./components/socketWrapper";
 import Room from "./pages/Room";
 
-axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.baseURL =
+  "https://8000-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io";
 axios.defaults.withCredentials = true;
 
 function App() {

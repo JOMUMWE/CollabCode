@@ -4,11 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-  // server: {
-  //   allowedHosts: ['5174-jomumwe-collabcode-kswko7rn7zm.ws-eu117.gitpod.io']
-  // },
-})
+  plugins: [react(), tailwindcss()],
+  server: {
+    allowedHosts: ['5173-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io']
+  },
+});

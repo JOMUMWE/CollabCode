@@ -5,7 +5,18 @@
   padding: 10px 10px 20px;
 }
 
+.chat-container {
+  width: 100%;
+  border: 1px solid #4a5568;
+}
 
+.chat-messages {
+  scrollbar-width: thin;
+}
+
+.chat-message {
+  word-break: break-word;
+}
 
 .languageFieldWrapper {
   padding: 2px 6px;
