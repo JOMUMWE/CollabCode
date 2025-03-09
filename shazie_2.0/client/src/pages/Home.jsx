@@ -1,6 +1,7 @@
 "use client";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import * as motion from "motion/react-client";
 
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
@@ -104,6 +105,21 @@ const features = [
 ];
 
 export default function Home() {
+  const [profilePic, setProfilePic] = useState(false);
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      try {
+        const { data } = await axios.get(`/getProfilePic/${user.id}`);
+        if (data.profilePic) {
+          setProfilePic(data.profilePic);
+        }
+      } catch (error) {
+        console.error("Error fetching profile picture:", error);
+      }
+    };
+
+    fetchProfilePic();
+  });
   const navigate = useNavigate();
   const [user, setUser] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -140,7 +156,7 @@ export default function Home() {
           >
             <div className="flex lg:flex-1">
               <a href="/" className="-m-1.5 p-1.5">
-                <span className="sr-only">Your Company</span>
+                <span className="sr-only">CollabCode</span>
                 <img alt="" src={png} className="h-8 w-auto" />
               </a>
             </div>
@@ -170,8 +186,8 @@ export default function Home() {
                       <span className="sr-only">Open user menu</span>
                       <img
                         alt=""
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        className="size-8 rounded-full"
+                        src={profilePic}
+                        className="size-8 rounded-full object-cover "
                       />
                     </MenuButton>
                     <p className=" text-xs text-black ml-2">{user.name}</p>
@@ -290,13 +306,21 @@ export default function Home() {
             </div>
           </div> */}
             <div className="text-center">
-              <h1 className="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">
+              <motion.h1
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 0.8,
+                  scale: { type: "spring", visualDuration: 0.5, bounce: 0.5 },
+                }}
+                className="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl"
+              >
                 Collaborate on Code in Real-Time
-              </h1>
-              <p className="mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
+              </motion.h1>
+              <motion.p className="mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
                 Work together seamlessly on code with CollabCode. Experience
                 real-time collaboration like never before.
-              </p>
+              </motion.p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
                   href="/signup"

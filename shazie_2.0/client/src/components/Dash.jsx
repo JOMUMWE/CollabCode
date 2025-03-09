@@ -1,11 +1,9 @@
-import { useState, useEffect, } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import EditProfBtn from "./utilities/EditProfBtn";
 import UpdateProfilePic from "./utilities/UpdateProfilePic";
 
-
 export default function Dash() {
-  
   const [profilePic, setProfilePic] = useState(false);
   const [user, setUser] = useState("");
   useEffect(() => {
@@ -54,11 +52,7 @@ export default function Dash() {
               </a>
               <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full">
                 <img
-                  src={
-                    profilePic
-                      ? profilePic
-                      : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  }
+                  src={profilePic}
                   alt="user"
                   className="object-cover w-full h-full"
                 />
