@@ -22,7 +22,7 @@ function addPropsToChildren(children, props) {
 export default function SocketWrapper({ children }) {
   const socket = io.connect(
     import.meta.env.VITE_WEB_SOCKET_URL ||
-      "https://8000-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io"
+      "http://localhost:8000"
   );
 
   const location = useLocation();

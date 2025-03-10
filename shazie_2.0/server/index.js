@@ -12,7 +12,7 @@ var bodyParser = require("body-parser");
 const app = express();
 app.use(
   cors({
-    origin: "https://5173-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io",
+    origin: "http://localhost:5173",
     credentials: true,
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -73,7 +73,7 @@ app.get('/getUserData', async (req, res) => {
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: ["https://5173-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io"],
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -175,25 +175,40 @@ io.on("connection", function (socket) {
     }
   });
 
-  // WebRTC signaling
-  socket.on("webrtc-offer", (data) => {
-    socket.to(data.target).emit("webrtc-offer", {
+  // Enhanced WebRTC signaling handlers
+  socket.on('webrtc-offer', (data) => {
+    console.log(`Relaying offer from ${socket.id} to ${data.target}`);
+    socket.to(data.target).emit('webrtc-offer', {
       sdp: data.sdp,
       caller: socket.id,
+      roomId: data.roomId // Add room tracking
     });
   });
 
-  socket.on("webrtc-answer", (data) => {
-    socket.to(data.target).emit("webrtc-answer", {
+  socket.on('webrtc-answer', (data) => {
+    console.log(`Relaying answer from ${socket.id} to ${data.target}`);
+    socket.to(data.target).emit('webrtc-answer', {
       sdp: data.sdp,
       caller: socket.id,
+      roomId: data.roomId
     });
   });
 
-  socket.on("webrtc-ice-candidate", (data) => {
-    socket.to(data.target).emit("webrtc-ice-candidate", {
+  socket.on('webrtc-ice-candidate', (data) => {
+    console.log(`Relaying ICE candidate from ${socket.id} to ${data.target}`);
+    socket.to(data.target).emit('webrtc-ice-candidate', {
       candidate: data.candidate,
       caller: socket.id,
+      roomId: data.roomId
+    });
+  });
+
+  // Handle disconnections for WebRTC cleanup
+  socket.on('disconnect', function () {
+    console.log('A user disconnected:', socket.id);
+    // Notify other peers to cleanup connections
+    socket.broadcast.emit('peer-disconnected', {
+      peerId: socket.id
     });
   });
 

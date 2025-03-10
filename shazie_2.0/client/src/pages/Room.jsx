@@ -34,6 +34,7 @@ export default function Room({ socket }) {
   const [messageInput, setMessageInput] = useState("");
 
 
+
   const languagesAvailable = [
     "javascript",
     "java",
@@ -141,108 +142,150 @@ export default function Room({ socket }) {
     };
   }, [socket]);
 
+  const [audioLevels, setAudioLevels] = useState({});
+
   useEffect(() => {
-    // Get user media
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: false })
       .then((stream) => {
-        const localAudio = document.querySelector("#localAudio");
-        localAudio.srcObject = stream;
+        const audioContext = new AudioContext();
+        const analyzer = audioContext.createAnalyser();
+        const microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyzer);
+        analyzer.fftSize = 256;
 
-        socket.on("webrtc-offer", async ({ sdp, caller }) => {
-          console.log("Received offer from", caller);
-          const peerConnection = new RTCPeerConnection();
-          peerConnections.current[caller] = peerConnection;
+        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
 
-          peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-              socket.emit("webrtc-ice-candidate", {
-                target: caller,
-                candidate: event.candidate,
-              });
-            }
-          };
+        function updateAudioLevel() {
+          analyzer.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+          setAudioLevels((prev) => ({
+            ...prev,
+            [socket.id]: average,
+          }));
+          requestAnimationFrame(updateAudioLevel);
+        }
 
-          peerConnection.ontrack = (event) => {
-            console.log("Received remote stream");
-            const remoteAudio = document.querySelector("#remoteAudio");
-            remoteAudio.srcObject = event.streams[0];
-          };
-
-          stream.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, stream);
-          });
-
-          await peerConnection.setRemoteDescription(
-            new RTCSessionDescription(sdp)
-          );
-          const answer = await peerConnection.createAnswer();
-          await peerConnection.setLocalDescription(answer);
-
-          socket.emit("webrtc-answer", {
-            target: caller,
-            sdp: peerConnection.localDescription,
-          });
-        });
-
-        socket.on("webrtc-answer", async ({ sdp, caller }) => {
-          console.log("Received answer from", caller);
-          const peerConnection = peerConnections.current[caller];
-          await peerConnection.setRemoteDescription(
-            new RTCSessionDescription(sdp)
-          );
-        });
-
-        socket.on("webrtc-ice-candidate", ({ candidate, caller }) => {
-          console.log("Received ICE candidate from", caller);
-          const peerConnection = peerConnections.current[caller];
-          peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-        });
-
-        socket.on("new member joined", async ({ username }) => {
-          console.log("New member joined:", username);
-          const peerConnection = new RTCPeerConnection();
-          peerConnections.current[socket.id] = peerConnection;
-
-          peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-              socket.emit("webrtc-ice-candidate", {
-                target: socket.id,
-                candidate: event.candidate,
-              });
-            }
-          };
-
-          peerConnection.ontrack = (event) => {
-            console.log("Received remote stream");
-            const remoteAudio = document.querySelector("#remoteAudio");
-            remoteAudio.srcObject = event.streams[0];
-          };
-
-          stream.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, stream);
-          });
-
-          const offer = await peerConnection.createOffer();
-          await peerConnection.setLocalDescription(offer);
-
-          socket.emit("webrtc-offer", {
-            target: socket.id,
-            sdp: peerConnection.localDescription,
-          });
-        });
-      })
-      .catch((error) => {
-        console.error("Error accessing media devices.", error);
+        updateAudioLevel();
       });
+  }, []);
 
-    return () => {
-      Object.values(peerConnections.current).forEach((peerConnection) => {
-        peerConnection.close();
-      });
-      peerConnections.current = {};
-    };
-  }, [socket, roomId]);
+ useEffect(() => {
+   navigator.mediaDevices
+     .getUserMedia({ audio: true, video: false })
+     .then((stream) => {
+       // Store stream reference
+       const localStream = stream;
+
+       // Set local audio
+       const localAudio = document.getElementById("localAudio");
+       if (localAudio) {
+         localAudio.srcObject = localStream;
+       }
+
+       socket.on("webrtc-offer", async ({ sdp, caller }) => {
+         const peerConnection = new RTCPeerConnection({
+           iceServers: [
+             { urls: "stun:stun.l.google.com:19302" },
+             { urls: "stun:stun1.l.google.com:19302" },
+             { urls: "stun:stun2.l.google.com:19302" },
+           ],
+         });
+
+         peerConnections.current[caller] = peerConnection;
+
+         // Add local tracks to the connection
+         localStream.getTracks().forEach((track) => {
+           peerConnection.addTrack(track, localStream);
+         });
+
+         // Handle incoming streams
+         peerConnection.ontrack = (event) => {
+           const remoteAudio = document.getElementById("remoteAudio");
+           if (remoteAudio && event.streams[0]) {
+             remoteAudio.srcObject = event.streams[0];
+           }
+         };
+
+         peerConnection.onicecandidate = (event) => {
+           if (event.candidate) {
+             socket.emit("webrtc-ice-candidate", {
+               target: caller,
+               candidate: event.candidate,
+             });
+           }
+         };
+
+         await peerConnection.setRemoteDescription(
+           new RTCSessionDescription(sdp)
+         );
+         const answer = await peerConnection.createAnswer();
+         await peerConnection.setLocalDescription(answer);
+
+         socket.emit("webrtc-answer", {
+           target: caller,
+           sdp: peerConnection.localDescription,
+         });
+       });
+
+       socket.on("webrtc-answer", async ({ sdp, caller }) => {
+         console.log("Received answer from", caller);
+         const peerConnection = peerConnections.current[caller];
+         await peerConnection.setRemoteDescription(
+           new RTCSessionDescription(sdp)
+         );
+       });
+
+       socket.on("webrtc-ice-candidate", ({ candidate, caller }) => {
+         console.log("Received ICE candidate from", caller);
+         const peerConnection = peerConnections.current[caller];
+         peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+       });
+
+       socket.on("new member joined", async ({ username }) => {
+         console.log("New member joined:", username);
+         const peerConnection = new RTCPeerConnection();
+         peerConnections.current[socket.id] = peerConnection;
+
+         peerConnection.onicecandidate = (event) => {
+           if (event.candidate) {
+             socket.emit("webrtc-ice-candidate", {
+               target: socket.id,
+               candidate: event.candidate,
+             });
+           }
+         };
+
+         peerConnection.ontrack = (event) => {
+           console.log("Received remote stream");
+           const remoteAudio = document.querySelector("#remoteAudio");
+           remoteAudio.srcObject = event.streams[0];
+         };
+
+         stream.getTracks().forEach((track) => {
+           peerConnection.addTrack(track, stream);
+         });
+
+         const offer = await peerConnection.createOffer();
+         await peerConnection.setLocalDescription(offer);
+
+         socket.emit("webrtc-offer", {
+           target: socket.id,
+           sdp: peerConnection.localDescription,
+         });
+       });
+     })
+     .catch((error) => {
+       console.error("Error accessing media devices.", error);
+     });
+
+   return () => {
+     Object.values(peerConnections.current).forEach((peerConnection) => {
+       peerConnection.close();
+     });
+     peerConnections.current = {};
+   };
+ }, [socket, roomId]);
 
   return (
     <div className="room">
@@ -293,7 +336,23 @@ export default function Room({ socket }) {
                 >
                   {each.slice(0, 2).toUpperCase()}
                 </div>
-                <div className="roomSidebarUsersEachName">{each}</div>
+                <div className="roomSidebarUsersEachName">
+                  {each}
+                  <div className="audio-visualizer">
+                    {[...Array(4)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="audio-bar"
+                        style={{
+                          transform: `scaleY(${
+                            (audioLevels[each] || 0) / 128
+                          })`,
+                          transition: "transform 0.1s",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -364,9 +423,9 @@ export default function Room({ socket }) {
         }}
       />
       <Toaster />
-      <div>
-        <audio id="localAudio" autoPlay muted className="audio" />
-        <audio id="remoteAudio" autoPlay className="audio" />
+      <div className="audio-controls">
+        <audio id="localAudio" autoPlay muted playsInline />
+        <audio id="remoteAudio" autoPlay playsInline />
       </div>
     </div>
   );

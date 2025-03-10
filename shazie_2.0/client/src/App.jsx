@@ -15,7 +15,7 @@ import SocketWrapper from "./components/socketWrapper";
 import Room from "./pages/Room";
 
 axios.defaults.baseURL =
-  "https://8000-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io";
+  "http://localhost:8000";
 axios.defaults.withCredentials = true;
 
 function App() {
