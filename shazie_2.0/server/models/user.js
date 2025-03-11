@@ -18,20 +18,26 @@ const userSchema = new Schema({
   },
 });
 
-// Project Schema
 const projectSchema = new mongoose.Schema({
   projectID: { type: String, required: true, unique: true },
   projectName: { type: String, required: true },
   description: { type: String },
   startDate: { type: Date, required: true },
   endDate: { type: Date },
+  teamId: { type: mongoose.Schema.Types.ObjectId, ref: "Team", required: true },
+  tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
 });
 
-// Task Schema
 const taskSchema = new mongoose.Schema({
   taskID: { type: String, required: true, unique: true },
   taskName: { type: String, required: true },
   status: { type: String, required: true },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Project",
+    required: true,
+  },
+  dueDate: { type: Date, required: true },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

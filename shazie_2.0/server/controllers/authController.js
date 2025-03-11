@@ -255,6 +255,40 @@ const getProfilePic = async (req, res) => {
   }
 };
 
+const createProject = async (req, res) => {
+  try {
+    const { projectName, description, startDate, endDate, teamName } = req.body;
+
+    // Find the team by name
+    const team = await Team.findOne({ teamName });
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Generate unique projectID
+    const projectID = v4();
+
+    // Create new project
+    const project = await Project.create({
+      projectID,
+      projectName,
+      description,
+      startDate,
+      endDate,
+      teamId: team._id,
+    });
+
+    // Add project to team's projects array
+    await Team.findByIdAndUpdate(team._id, {
+      $push: { projects: project._id },
+    });
+
+    return res.status(201).json(project);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 
 module.exports = {
   hi,
