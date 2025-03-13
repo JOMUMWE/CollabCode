@@ -99,7 +99,13 @@ export default function Teams(props) {
                       </table>
                     </div>
                     <div className="flex flex-row justify-end">
-                      <CreateRoom username={username} team={teamItem.members} teamId={teamItem._id} creatorId={teamItem.createdBy._id} roomId ={teamItem.roomId} />
+                      <CreateRoom
+                        username={username}
+                        team={teamItem.members}
+                        teamId={teamItem._id}
+                        creatorId={teamItem.createdBy._id}
+                        roomId={teamItem.roomId}
+                      />
                     </div>
                   </ul>
                 </li>
@@ -111,14 +117,15 @@ export default function Teams(props) {
         )}
       </main>
       <div className="bg-white mx-auto md:py-10 sm:py-16 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {active ? "" : <TeamsForm fun={setActive} act={active} />}
         <button
           onClick={() => {
             setActive(!active);
           }}
           className={
             active
-              ? "bg-indigo-600 flex w-32 justify-center items-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
-              : "bg-indigo-400 flex w-40 justify-center items-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+              ? "bg-indigo-600 flex w-36 justify-center items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+              : "bg-indigo-400 flex w-42 justify-center items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
           }
         >
           {active ? (
@@ -129,7 +136,7 @@ export default function Teams(props) {
           {active ? "Create Team" : "Creating a team"}
         </button>
       </div>
-      {active ? "" : <TeamsForm fun={setActive} act={active} />}
+
       <Outlet />
     </>
   );

@@ -7,7 +7,7 @@ const {
   VersionControl,
   Team,
 } = require("../models/user");
-const {v4} = require("uuid");
+const { v4 } = require("uuid");
 const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
@@ -20,10 +20,9 @@ const logoutUser = (req, res) => {
   res.json("logged out");
 };
 
-
 const registerUser = async (req, res) => {
   try {
-    const { name, email,phone,role, password } = req.body;
+    const { name, email, phone, role, password } = req.body;
     //check if name has been entered
     if (!name) {
       return res.json({
@@ -65,7 +64,13 @@ const loginUser = async (req, res) => {
     const match = await comparePassword(password, user.password);
     if (match) {
       jwt.sign(
-        { email: user.email, id: user._id, name: user.name, role: user.role , phone:user.phone},
+        {
+          email: user.email,
+          id: user._id,
+          name: user.name,
+          role: user.role,
+          phone: user.phone,
+        },
         process.env.JWT_SECRET,
         {},
         (err, token) => {
@@ -224,7 +229,7 @@ const validate_email = async (req, res) => {
 
 const updateProfilePic = async (req, res) => {
   const { image, id } = req.body;
-  
+
   try {
     await User.updateOne(
       { _id: id },
@@ -289,7 +294,6 @@ const createProject = async (req, res) => {
   }
 };
 
-
 module.exports = {
   hi,
   registerUser,
@@ -302,4 +306,5 @@ module.exports = {
   validate_email,
   updateProfilePic,
   getProfilePic,
+  createProject,
 };

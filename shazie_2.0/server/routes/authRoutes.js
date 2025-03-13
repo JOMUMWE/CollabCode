@@ -12,6 +12,7 @@ const {
   validate_email,
   updateProfilePic,
   getProfilePic,
+  createProject,
 } = require("../controllers/authController");
 
 router.get("/", hi);
@@ -25,6 +26,6 @@ router.get("/teams/:userId", getTeams);
 router.get("/validate-email", validate_email);
 router.post("/updateProfilePic", updateProfilePic);
 router.get("/getProfilePic/:id", getProfilePic);
-
+router.post("/createProject", createProject);
 
 module.exports = router;

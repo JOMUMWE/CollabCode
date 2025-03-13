@@ -55,8 +55,8 @@ app.get("/getAccessToken", async (req, res) => {
     });
 });
 
-app.get('/getUserData', async (req, res) => {
-  req.get('Authorization');
+app.get("/getUserData", async (req, res) => {
+  req.get("Authorization");
   await fetch("https://api.github.com/user", {
     method: "GET",
     headers: {
@@ -176,39 +176,39 @@ io.on("connection", function (socket) {
   });
 
   // Enhanced WebRTC signaling handlers
-  socket.on('webrtc-offer', (data) => {
+  socket.on("webrtc-offer", (data) => {
     console.log(`Relaying offer from ${socket.id} to ${data.target}`);
-    socket.to(data.target).emit('webrtc-offer', {
+    socket.to(data.target).emit("webrtc-offer", {
       sdp: data.sdp,
       caller: socket.id,
-      roomId: data.roomId // Add room tracking
+      roomId: data.roomId, // Add room tracking
     });
   });
 
-  socket.on('webrtc-answer', (data) => {
+  socket.on("webrtc-answer", (data) => {
     console.log(`Relaying answer from ${socket.id} to ${data.target}`);
-    socket.to(data.target).emit('webrtc-answer', {
+    socket.to(data.target).emit("webrtc-answer", {
       sdp: data.sdp,
       caller: socket.id,
-      roomId: data.roomId
+      roomId: data.roomId,
     });
   });
 
-  socket.on('webrtc-ice-candidate', (data) => {
+  socket.on("webrtc-ice-candidate", (data) => {
     console.log(`Relaying ICE candidate from ${socket.id} to ${data.target}`);
-    socket.to(data.target).emit('webrtc-ice-candidate', {
+    socket.to(data.target).emit("webrtc-ice-candidate", {
       candidate: data.candidate,
       caller: socket.id,
-      roomId: data.roomId
+      roomId: data.roomId,
     });
   });
 
   // Handle disconnections for WebRTC cleanup
-  socket.on('disconnect', function () {
-    console.log('A user disconnected:', socket.id);
+  socket.on("disconnect", function () {
+    console.log("A user disconnected:", socket.id);
     // Notify other peers to cleanup connections
-    socket.broadcast.emit('peer-disconnected', {
-      peerId: socket.id
+    socket.broadcast.emit("peer-disconnected", {
+      peerId: socket.id,
     });
   });
 

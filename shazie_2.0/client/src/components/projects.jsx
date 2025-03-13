@@ -1,6 +1,9 @@
-import React from 'react'
+import ProjectsForm from "./ProjectsForm";
+import { useState } from "react";
+import { PlusIcon } from "@heroicons/react/outline";
 
 export default function Projects() {
+  const [active, setActive] = useState(true);
   return (
     <div>
       <header className="bg-white shadow-sm">
@@ -10,6 +13,29 @@ export default function Projects() {
           </h1>
         </div>
       </header>
+      <main className="bg-white mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <p className="text-center text-gray-500">No projects available</p>
+      </main>
+      <div className="bg-white mx-auto md:py-10 sm:py-16 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {active ? "" : <ProjectsForm fun={setActive} act={active} />}
+        <button
+          onClick={() => {
+            setActive(!active);
+          }}
+          className={
+            active
+              ? "bg-indigo-600 flex w-36 justify-center items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+              : "bg-indigo-400 flex w-42 justify-center items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+          }
+        >
+          {active ? (
+            <PlusIcon className="w-4 h-4 mr-1" />
+          ) : (
+            <span className="loading loading-infinity loading-xs mr-2"></span>
+          )}
+          {active ? "Create Project" : "Creating a project"}
+        </button>
+      </div>
     </div>
   );
 }
