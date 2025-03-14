@@ -14,17 +14,16 @@ import { useState } from "react";
 import SocketWrapper from "./components/socketWrapper";
 import Room from "./pages/Room";
 
-axios.defaults.baseURL =
-  "http://localhost:8000";
+axios.defaults.baseURL = "http://localhost:8000";
 axios.defaults.withCredentials = true;
 
 function App() {
   const [user, setUser] = useState(false);
   const [teamData, setTeamData] = useState("");
-  const getprofile = () => {
+  const getprofile = async () => {
     try {
       if (!user) {
-        axios.get("/profile").then(({ data }) => {
+        await axios.get("/profile").then(({ data }) => {
           setUser(data);
           console.log(user);
           axios
@@ -57,7 +56,10 @@ function App() {
           />
           <Route path="/dashboard/dash" element={<Dash />} />
           <Route path="/dashboard/calendar" element={<Calendar />} />
-          <Route path="/dashboard/projects" element={<Projects />} />
+          <Route
+            path="/dashboard/projects"
+            element={<Projects user={user} />}
+          />
         </Route>
         <Route
           path="/room/:roomId"

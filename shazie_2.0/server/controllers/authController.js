@@ -294,6 +294,48 @@ const createProject = async (req, res) => {
   }
 };
 
+const validateTeam = async (req, res) => {
+  const { teamName } = req.query;
+  try {
+    const team = await Team.findOne({ teamName });
+    if (team) {
+      return res.json({ exists: true });
+    } else {
+      return res.json({ exists: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Endpoint to fetch projects for a user
+const getProjects = async (req, res) => {
+  const { userId } = req.query; // Pass the user ID as a query parameter
+
+  try {
+    // Find teams where the user is a member
+    const teams = await Team.find({ members: userId });
+
+    if (!teams || teams.length === 0) {
+      return res.status(404).json({ error: "No teams found for the user" });
+    }
+
+    // Extract team IDs
+    const teamIds = teams.map((team) => team._id);
+
+    // Find projects associated with the user's teams
+    const projects = await Project.find({ teamId: { $in: teamIds } }).populate(
+      "teamId"
+    );
+
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch projects" });
+  }
+};
+
 module.exports = {
   hi,
   registerUser,
@@ -307,4 +349,6 @@ module.exports = {
   updateProfilePic,
   getProfilePic,
   createProject,
+  getProjects,
+  validateTeam,
 };

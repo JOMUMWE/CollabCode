@@ -8,28 +8,58 @@ export default function ProjectsForm(props) {
     description: "",
     startDate: "",
     endDate: "",
-    teamId: "",
+    teamName: "",
   });
+  const [teamError, setTeamError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === "teamId") {
+      validateTeamName(value);
+    }
+  };
+
+  const validateTeamName = async (teamName) => {
+    if (teamName.trim() === "") {
+      setTeamError("");
+      return;
+    }
+
+    try {
+      const { data } = await axios.get(
+        `/validateTeamName?teamName=${teamName}`
+      );
+      if (!data.exists) {
+        setTeamError("Team name does not exist.");
+      } else {
+        setTeamError("");
+      }
+    } catch (error) {
+      console.error(error);
+      setTeamError("Error validating team name.");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (teamError) {
+      toast.error("Please fix the errors before submitting.");
+      return;
+    }
+
     try {
-      const { data } = await axios.post("/projects", formData);
+      const { data } = await axios.post("/createProject", formData);
       toast.success("Project created successfully!");
-      // Reset form
       setFormData({
         projectName: "",
         description: "",
         startDate: "",
         endDate: "",
-        teamId: "",
+        teamName: "",
       });
-      props.fun(!props);
+      props.fun(!props.act);
     } catch (error) {
       toast.error("Error creating project");
       console.error(error);
@@ -110,13 +140,18 @@ export default function ProjectsForm(props) {
           <input
             type="text"
             name="teamName"
-            value={formData.teamId}
+            value={formData.teamName}
             onChange={handleChange}
             required
             className="block w-full rounded-md bg-white px-3 py-1 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
           />
+          {teamError && <p className="text-red-500 text-sm">{teamError}</p>}
         </div>
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={!!teamError}
+        >
           Create Project
         </button>
       </form>
