@@ -3,6 +3,8 @@ import AceEditor from "react-ace";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { generateColor } from "../utils";
+import { PlusIcon } from "@heroicons/react/outline";
+import axios from "axios";
 import "./Room.css";
 
 import "ace-builds/src-noconflict/mode-javascript";
@@ -22,7 +24,7 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
 
-export default function Room({ socket }) {
+export default function Room({ socket, userid, name }) {
   const navigate = useNavigate();
   const { roomId } = useParams();
   const [fetchedUsers, setFetchedUsers] = useState([]);
@@ -32,6 +34,93 @@ export default function Room({ socket }) {
   const peerConnections = useRef({});
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const [isChatVisible, setIsChatVisible] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [uploadedFileContent, setUploadedFileContent] = useState("");
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  const supportedExtensions = {
+    javascript: [".js"],
+    java: [".java"],
+    c_cpp: [".c", ".cpp", ".h"],
+    python: [".py"],
+    typescript: [".ts"],
+    golang: [".go"],
+    yaml: [".yaml", ".yml"],
+    html: [".html"],
+    css: [".css"],
+  };
+
+  // Function to determine displayed users and extra count
+  const getDisplayedUsers = () => {
+    const maxVisibleAvatars = 3;
+    const displayedUsers = fetchedUsers.slice(0, maxVisibleAvatars);
+    const extraCount = fetchedUsers.length - maxVisibleAvatars;
+    return { displayedUsers, extraCount };
+  };
+
+  const { displayedUsers, extraCount } = getDisplayedUsers();
+
+  const fetchFiles = async () => {
+    try {
+      const response = await axios.get(`/getFilesForRoom?roomId=${roomId}`);
+      setUploadedFiles(response.data.files);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      toast.error("Failed to fetch files.");
+    }
+  };
+  useEffect(() => {
+    fetchFiles();
+  }, [roomId]);
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split(".").pop();
+    const isSupported = Object.keys(supportedExtensions).some((lang) =>
+      supportedExtensions[lang].includes(`.${fileExtension}`)
+    );
+
+    if (!isSupported) {
+      toast.error("Unsupported file format. Please upload a supported file.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const fileContent = e.target.result;
+      try {
+        // Send the file to the backend
+        const response = await axios.post("/uploadFile", {
+          roomId,
+          filename: file.name,
+          content: fileContent,
+          uploadedBy: userid, // Assuming the user's ID is available in the socket
+        });
+        // Set the file content locally
+        setUploadedFileContent(fileContent);
+        setFetchedCode(fileContent);
+        // Emit the updated code to the server
+        socket.emit("update code", { roomId, code: fileContent });
+        toast.success("File uploaded and saved successfully!");
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        toast.error("Failed to upload file.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const toggleChat = () => {
+    setIsChatVisible((prev) => {
+      if (!prev) {
+        // Reset unread messages when opening the chat
+        setUnreadMessages(0);
+      }
+      return !prev;
+    });
+  };
 
   const languagesAvailable = [
     "javascript",
@@ -43,7 +132,6 @@ export default function Room({ socket }) {
     "yaml",
     "html",
   ];
-  const codeKeybindingsAvailable = ["default", "emacs", "vim"];
 
   function onChange(newValue) {
     setFetchedCode(newValue);
@@ -55,12 +143,6 @@ export default function Room({ socket }) {
     setLanguage(e.target.value);
     socket.emit("update language", { roomId, languageUsed: e.target.value });
     socket.emit("syncing the language", { roomId });
-  }
-
-  function handleCodeKeybindingChange(e) {
-    setCodeKeybinding(
-      e.target.value === "default" ? undefined : e.target.value
-    );
   }
 
   function handleLeave() {
@@ -118,10 +200,14 @@ export default function Room({ socket }) {
       setMessages((prev) => [
         ...prev,
         {
-          username: data.username,
+          username: name,
           text: data.message,
         },
       ]);
+      // Increment unread messages if the chat is not visible
+      if (!isChatVisible) {
+        setUnreadMessages((prev) => prev + 1);
+      }
     });
 
     const backButtonEventListner = window.addEventListener(
@@ -135,6 +221,7 @@ export default function Room({ socket }) {
     );
     return () => {
       window.removeEventListener("popstate", backButtonEventListner);
+      socket.off("on code change");
     };
   }, [socket]);
 
@@ -285,11 +372,45 @@ export default function Room({ socket }) {
 
   return (
     <div className="room">
+      <div className="avatar-group fixed top-4 right-4 -space-x-3 z-1">
+        {displayedUsers.map((user, index) => (
+          <div
+            key={index}
+            className="avatar w-8"
+            style={{
+              backgroundColor: generateColor(user),
+            }}
+          >
+            {user.slice(0, 2).toUpperCase()}
+          </div>
+        ))}
+        {extraCount > 0 && (
+          <div className="avatar avatar-placeholder">+{extraCount}</div>
+        )}
+      </div>
       <div className="roomSidebar bg-gray-800">
         <div className="flex flex-col items-center ">
+          <div className="file-upload-container flex items-center mt-4">
+            <label
+              htmlFor="file-upload"
+              className="flex items-center text-white cursor-pointer hover:underline"
+            >
+              <PlusIcon className="w-4 h-4 mr-1" />
+              Open File
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              accept={Object.values(supportedExtensions).flat().join(",")}
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </div>
           <div>
             <details className="dropdown">
-              <summary className="btn m-1">Languages</summary>
+              <summary className="m-1 text-white cursor-pointer hover:underline">
+                {language ? language : "Languages"}
+              </summary>
               <select
                 className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
                 name="language"
@@ -305,84 +426,21 @@ export default function Room({ socket }) {
               </select>
             </details>
           </div>
-
-          <div className="languageFieldWrapper">
-            <select
-              className="languageField"
-              name="codeKeybinding"
-              id="codeKeybinding"
-              value={codeKeybinding}
-              onChange={handleCodeKeybindingChange}
-            >
-              {codeKeybindingsAvailable.map((eachKeybinding) => (
-                <option key={eachKeybinding} value={eachKeybinding}>
-                  {eachKeybinding}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <p>Connected Users:</p>
-          <div className="roomSidebarUsers">
-            {fetchedUsers.map((each) => (
-              <div key={each} className="roomSidebarUsersEach">
-                <div
-                  className="roomSidebarUsersEachAvatar"
-                  style={{ backgroundColor: `${generateColor(each)}` }}
-                >
-                  {each.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="roomSidebarUsersEachName">
-                  {each}
-                  <div className="audio-visualizer">
-                    {[...Array(4)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="audio-bar"
-                        style={{
-                          transform: `scaleY(${
-                            (audioLevels[each] || 0) / 128
-                          })`,
-                          transition: "transform 0.1s",
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
-        <div className="chat-container bg-base-200 rounded-lg p-4 my-4 h-[300px] flex flex-col">
-          <div className="chat-messages overflow-y-auto flex-grow mb-2">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`chat-message mb-2 ${
-                  msg.username === "You" ? "text-right" : "text-left"
-                }`}
-              >
-                <span
-                  className="font-bold"
-                  style={{ color: generateColor(msg.username) }}
+        <div className="file-list mt-4">
+          <h3 className="text-white text-sm ml-1 mb-2">Files:</h3>
+          <ul className="text-white">
+            {uploadedFiles.map((file, index) => (
+              <li key={index} className="mb-1 ml-3">
+                <button
+                  className="text-gray-300 hover:underline text-xs m-0 p-0"
+                  onClick={() => setFetchedCode(file.content)} // Open file content in editor
                 >
-                  {msg.username}
-                </span>
-                <span className="ml-2">{msg.text}</span>
-              </div>
+                  {file.filename}
+                </button>
+              </li>
             ))}
-          </div>
-
-          <div className="chat-input-container">
-            <input
-              type="text"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              placeholder="Type a message..."
-              className="input input-bordered w-full"
-            />
-          </div>
+          </ul>
         </div>
         <button
           className="btn btn-sm btn-outline btn-error self-end w-[50%] mx-auto"
@@ -419,10 +477,65 @@ export default function Room({ socket }) {
         }}
       />
       <Toaster />
-      <div className="audio-controls">
-        <audio id="localAudio" autoPlay muted playsInline />
-        <audio id="remoteAudio" autoPlay playsInline />
-      </div>
+      {/* Floating Chat Button */}
+      <button
+        className="fixed bottom-4 right-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-500"
+        onClick={toggleChat}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="1.5"
+          stroke="currentColor"
+          className="size-6"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
+          />
+        </svg>
+        {unreadMessages > 0 && (
+          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            {unreadMessages}
+          </span>
+        )}
+      </button>
+      {/* Floating Chat Container */}
+      {isChatVisible && (
+        <div className="fixed bottom-16 right-4 bg-black shadow-lg rounded-lg w-80 h-96 flex flex-col">
+          <div className="chat-messages overflow-y-auto flex-grow p-4">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`chat-message mb-2 flex flex-col ${
+                  msg.username === "You" ? "text-right" : "text-left"
+                }`}
+              >
+                <span
+                  className="font-bold text-xs"
+                  style={{ color: generateColor(msg.username) }}
+                >
+                  {msg.username}
+                </span>
+                <span className="text-sm font-semibold">{msg.text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="chat-input-container p-2 border-t">
+            <input
+              type="text"
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              placeholder="Type a message..."
+              className="input input-bordered w-full"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -188,6 +188,7 @@ const getTeams = async (req, res) => {
   try {
     const { userId } = req.params;
 
+    // Validate userId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ error: "Invalid user ID" });
     }
@@ -198,8 +199,7 @@ const getTeams = async (req, res) => {
     })
       .populate("members", "name email") // Populate member details
       .populate("createdBy", "name email _id") // Populate creator details
-      .populate("projects", "projectName") // Populate associated projects (if needed)
-      .populate("roomId");
+      .populate("projects", "projectName"); // Populate associated projects
 
     if (!teams.length) {
       return res.status(404).json({ message: "No teams found for this user" });
@@ -336,6 +336,64 @@ const getProjects = async (req, res) => {
   }
 };
 
+const addFileToProject = async (req, res) => {
+  const { roomId, filename, content, uploadedBy } = req.body;
+
+  try {
+    // Find the team associated with the room
+    const team = await Team.findOne({ roomId });
+    if (!team) {
+      return res.status(404).json({ error: "Team not found for this room" });
+    }
+
+    // Find the project associated with the team
+    const project = await Project.findOne({ teamId: team._id });
+    if (!project) {
+      return res.status(404).json({ error: "No project found for this team" });
+    }
+
+    // Add the file to the project's files array
+    const newFile = {
+      filename,
+      content,
+      uploadedBy,
+    };
+    project.files.push(newFile);
+    await project.save();
+
+    res
+      .status(201)
+      .json({ message: "File uploaded successfully", file: newFile });
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getFilesForRoom = async (req, res) => {
+  const { roomId } = req.query;
+
+  try {
+    // Find the team associated with the room
+    const team = await Team.findOne({ roomId });
+    if (!team) {
+      return res.status(404).json({ error: "Team not found for this room" });
+    }
+
+    // Find the project associated with the team
+    const project = await Project.findOne({ teamId: team._id });
+    if (!project) {
+      return res.status(404).json({ error: "No project found for this team" });
+    }
+
+    // Return the files associated with the project
+    res.status(200).json({ files: project.files });
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   hi,
   registerUser,
@@ -351,4 +409,6 @@ module.exports = {
   createProject,
   getProjects,
   validateTeam,
+  addFileToProject,
+  getFilesForRoom,
 };

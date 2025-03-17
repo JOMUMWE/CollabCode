@@ -65,7 +65,7 @@ function App() {
           path="/room/:roomId"
           element={
             <SocketWrapper>
-              <Room name={user.name} />
+              <Room name={user.name} userid={user.id} />
             </SocketWrapper>
           }
         />

@@ -163,7 +163,8 @@ io.on("connection", function (socket) {
       roomID_to_Code_Map[roomId]["code"] = code;
     } else {
       roomID_to_Code_Map[roomId] = { code };
-    }
+    } 
+    socket.to(roomId).emit("on code change", { code });
   });
 
   // for user editing the code to reflect on his/her screen

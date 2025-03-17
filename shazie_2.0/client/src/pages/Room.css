@@ -18,6 +18,39 @@
   word-break: break-word;
 }
 
+
+.connected-users-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 50;
+}
+
+.avatar1 {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.extra-count {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #6b7280; /* Tailwind gray-500 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: white;
+}
+
 .languageFieldWrapper {
   padding: 2px 6px;
   background-color: #f0f0f0;
@@ -34,23 +67,6 @@
 
 .roomCodeEditor {
   flex: 1;
-}
-
-.roomSidebarCopyBtn {
-  font-size: 75%;
-  font-weight: bold;
-  padding: 8px 15px;
-  color: white;
-  background-color: #ffdd00;
-  border: 1px solid #ffdd00;
-  outline: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.45s ease-in-out 0.05s;
-}
-.roomSidebarCopyBtn:hover {
-  color: black;
-  background-color: white;
 }
 
 .roomSidebarBtn {
@@ -97,23 +113,20 @@
   font-weight: bold;
   font-size: small;
 }
-
+.roomSidebar{
+    max-width: 30vw;
+  }
 @media screen and (min-width: 991px) {
   .room {
     flex-direction: row;
   }
-
-  .roomSidebar {
-    flex: 0.25;
-  }
+  
 
   .roomSidebar > *:nth-child(2) {
     margin-top: auto;
   }
 
-  .roomCodeEditor {
-    flex: 0.75;
-  }
+  
 }
 .audio-visualizer {
   display: flex;

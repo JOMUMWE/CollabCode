@@ -26,6 +26,14 @@ const projectSchema = new mongoose.Schema({
   endDate: { type: Date },
   teamId: { type: mongoose.Schema.Types.ObjectId, ref: "Team", required: true },
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
+  files: [
+    {
+      filename: { type: String, required: true },
+      content: { type: String, required: true }, // File content
+      uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      uploadedAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 const taskSchema = new mongoose.Schema({
