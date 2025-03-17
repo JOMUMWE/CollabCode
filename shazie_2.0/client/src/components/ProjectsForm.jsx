@@ -127,6 +127,7 @@ export default function ProjectsForm(props) {
             name="endDate"
             value={formData.endDate}
             onChange={handleChange}
+            min={formData.startDate}
             className="block w-full rounded-md bg-white px-3 py-1 text-base text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
           />
         </div>
