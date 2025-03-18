@@ -1,5 +1,5 @@
 import ProjectsForm from "./ProjectsForm";
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 import { PlusIcon } from "@heroicons/react/outline";
 import axios from "axios";
 import TaskForm from "./utilities/TaskForm";
@@ -34,6 +34,7 @@ export default function Projects(props) {
           : project
       )
     );
+    
   };
   return (
     <div>
@@ -67,11 +68,27 @@ export default function Projects(props) {
                     ? new Date(project.endDate).toLocaleDateString()
                     : "Ongoing"}
                 </p>
-                <TaskForm
-                  projectId={project._id}
-                  onTaskAdded={(task) => handleTaskAdded(project._id, task)}
-                  userid = {props.user.id}
-                />
+                <button
+                  className="bg-indigo-600 flex w-36 justify-center items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+                  onClick={() =>
+                    document.getElementById("my_modal_4").showModal()
+                  }
+                >
+                  <PlusIcon className="w-4 h-4" /> Add Task
+                </button>
+                <dialog id="my_modal_4" className="modal w-fit mx-auto ">
+                  <div className="modal-box w-full bg-white">
+                    <div className="modal-action w-full">
+                      <TaskForm
+                        projectId={project._id}
+                        onTaskAdded={(task) =>
+                          handleTaskAdded(project._id, task)
+                        }
+                        userid={props.user.id}
+                      />
+                    </div>
+                  </div>
+                </dialog>
               </div>
             ))}
           </div>

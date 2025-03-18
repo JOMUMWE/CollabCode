@@ -405,9 +405,26 @@ const addTaskToProject = async (req, res) => {
     }
 
     // Check if the project exists
-    const project = await Project.findById(projectId);
+    const project = await Project.findById(projectId).populate("teamId");
     if (!project) {
       return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Check if the assignedTo email exists and is part of the team
+    let assignedToUser = null;
+    if (assignedTo) {
+      assignedToUser = await User.findOne({ email: assignedTo });
+      if (!assignedToUser) {
+        return res.status(404).json({ error: "Assigned user not found" });
+      }
+
+      // Check if the user is part of the team
+      const isMember = project.teamId.members.some(
+        (memberId) => memberId.toString() === assignedToUser._id.toString()
+      );
+      if (!isMember) {
+        return res.status(403).json({ error: "User is not part of the team" });
+      }
     }
 
     // Generate unique taskID
@@ -421,7 +438,7 @@ const addTaskToProject = async (req, res) => {
       projectId,
       dueDate,
       createdBy,
-      assignedTo,
+      assignedTo: assignedToUser ? assignedToUser._id : null,
     });
 
     // Add the task to the project's tasks array
@@ -461,6 +478,42 @@ const getTasksForProject = async (req, res) => {
   }
 };
 
+const validateEmailForProject = async (req, res) => {
+  const { email, projectId } = req.query;
+
+  try {
+    // Validate projectId
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    // Check if the project exists
+    const project = await Project.findById(projectId).populate("teamId");
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Check if the email exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Check if the user is part of the team
+    const isMember = project.teamId.members.some(
+      (memberId) => memberId.toString() === user._id.toString()
+    );
+    if (!isMember) {
+      return res.status(403).json({ error: "User is not part of the team" });
+    }
+
+    res.status(200).json({ valid: true, userId: user._id });
+  } catch (error) {
+    console.error("Error validating email:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   hi,
   registerUser,
@@ -480,4 +533,5 @@ module.exports = {
   getFilesForRoom,
   addTaskToProject,
   getTasksForProject,
+  validateEmailForProject,
 };

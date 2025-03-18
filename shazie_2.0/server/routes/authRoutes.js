@@ -19,6 +19,7 @@ const {
   getFilesForRoom,
   addTaskToProject,
   getTasksForProject,
+  validateEmailForProject,
 } = require("../controllers/authController");
 
 router.get("/", hi);
@@ -39,5 +40,6 @@ router.post("/uploadFile", addFileToProject);
 router.get("/getFilesForRoom", getFilesForRoom);
 router.post("/addTask", addTaskToProject);
 router.get("/getTasks", getTasksForProject);
+router.get("/validateEmailForProject", validateEmailForProject);
 
 module.exports = router;
