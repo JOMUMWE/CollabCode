@@ -2,6 +2,7 @@ import ProjectsForm from "./ProjectsForm";
 import { useState, useEffect } from "react";
 import { PlusIcon } from "@heroicons/react/outline";
 import axios from "axios";
+import TaskForm from "./utilities/TaskForm";
 
 export default function Projects(props) {
   const [active, setActive] = useState(true);
@@ -24,6 +25,16 @@ export default function Projects(props) {
 
     fetchProjects();
   }, [props]);
+
+  const handleTaskAdded = (projectId, task) => {
+    setProjects((prevProjects) =>
+      prevProjects.map((project) =>
+        project._id === projectId
+          ? { ...project, tasks: [...project.tasks, task] }
+          : project
+      )
+    );
+  };
   return (
     <div>
       <header className="bg-white shadow-sm">
@@ -56,6 +67,11 @@ export default function Projects(props) {
                     ? new Date(project.endDate).toLocaleDateString()
                     : "Ongoing"}
                 </p>
+                <TaskForm
+                  projectId={project._id}
+                  onTaskAdded={(task) => handleTaskAdded(project._id, task)}
+                  userid = {props.user.id}
+                />
               </div>
             ))}
           </div>

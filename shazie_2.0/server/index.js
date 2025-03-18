@@ -20,7 +20,7 @@ app.use(
 );
 const server = http.createServer(app);
 app.use(bodyParser.json());
-app.use(express.json({ limit: "50mb" }));
+app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 

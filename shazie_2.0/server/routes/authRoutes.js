@@ -17,6 +17,8 @@ const {
   validateTeam,
   addFileToProject,
   getFilesForRoom,
+  addTaskToProject,
+  getTasksForProject,
 } = require("../controllers/authController");
 
 router.get("/", hi);
@@ -35,5 +37,7 @@ router.get("/getProjects", getProjects);
 router.get("/validateTeamName", validateTeam);
 router.post("/uploadFile", addFileToProject);
 router.get("/getFilesForRoom", getFilesForRoom);
+router.post("/addTask", addTaskToProject);
+router.get("/getTasks", getTasksForProject);
 
 module.exports = router;

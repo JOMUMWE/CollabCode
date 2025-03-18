@@ -394,6 +394,73 @@ const getFilesForRoom = async (req, res) => {
   }
 };
 
+const addTaskToProject = async (req, res) => {
+  const { projectId, taskName, status, dueDate, createdBy, assignedTo } =
+    req.body;
+
+  try {
+    // Validate projectId
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    // Check if the project exists
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Generate unique taskID
+    const taskID = v4();
+
+    // Create a new task
+    const task = await Task.create({
+      taskID,
+      taskName,
+      status,
+      projectId,
+      dueDate,
+      createdBy,
+      assignedTo,
+    });
+
+    // Add the task to the project's tasks array
+    await Project.findByIdAndUpdate(projectId, {
+      $push: { tasks: task._id },
+    });
+
+    res.status(201).json({ message: "Task added successfully", task });
+  } catch (error) {
+    console.error("Error adding task:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getTasksForProject = async (req, res) => {
+  const { projectId } = req.query;
+
+  try {
+    // Validate projectId
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ error: "Invalid project ID" });
+    }
+
+    // Find tasks associated with the project
+    const tasks = await Task.find({ projectId })
+      .populate("createdBy", "name")
+      .populate("assignedTo", "name");
+
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ error: "No tasks found for this project" });
+    }
+
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   hi,
   registerUser,
@@ -411,4 +478,6 @@ module.exports = {
   validateTeam,
   addFileToProject,
   getFilesForRoom,
+  addTaskToProject,
+  getTasksForProject,
 };

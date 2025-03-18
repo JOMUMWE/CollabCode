@@ -3,6 +3,7 @@
   flex-direction: row;
   min-height: 100vh;
   padding: 10px 10px 20px;
+  background-color: black;
 }
 
 .chat-container {

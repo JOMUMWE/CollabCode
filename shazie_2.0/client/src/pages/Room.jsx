@@ -17,10 +17,15 @@ import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/mode-html";
 import "ace-builds/src-noconflict/mode-css";
 
+//for loading the languages on demand to be used later
+// const loadMode = async (language) => {
+//   await import(`ace-builds/src-noconflict/mode-${language}`);
+// };
+
 import "ace-builds/src-noconflict/keybinding-emacs";
 import "ace-builds/src-noconflict/keybinding-vim";
 
-import "ace-builds/src-noconflict/theme-monokai";
+import "ace-builds/src-noconflict/theme-dracula";
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-searchbox";
 
@@ -29,7 +34,7 @@ export default function Room({ socket, userid, name }) {
   const { roomId } = useParams();
   const [fetchedUsers, setFetchedUsers] = useState([]);
   const [fetchedCode, setFetchedCode] = useState("");
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState("python");
   const [codeKeybinding, setCodeKeybinding] = useState(undefined);
   const peerConnections = useRef({});
   const [messages, setMessages] = useState([]);
@@ -457,24 +462,49 @@ export default function Room({ socket, userid, name }) {
         className="roomCodeEditor"
         mode={language}
         keyboardHandler={codeKeybinding}
-        theme="monokai"
+        theme="dracula"
         name="collabEditor"
         width="full"
         height="auto"
         value={fetchedCode}
         onChange={onChange}
         fontSize={15}
+        showLineNumbers={true}
         showPrintMargin={true}
         showGutter={true}
         highlightActiveLine={true}
         enableLiveAutocompletion={true}
         enableBasicAutocompletion={false}
-        enableSnippets={false}
+        enableSnippets={true}
         wrapEnabled={true}
         tabSize={2}
         editorProps={{
           $blockScrolling: true,
         }}
+        setOptions={{
+          showFoldWidgets: true, // Enable fold widgets
+          tooltipFollowsMouse: true, // Enable tooltips
+        }}
+        // annotations={[
+        //   {
+        //     row: 2, // Line number
+        //     column: 4, // Column number
+        //     text: "This is a warning", // Text to display
+        //     type: "warning", // Can be 'error', 'warning', or 'info'
+        //   },
+        // ]}
+        commands={[
+          {
+            name: "undo",
+            bindKey: { win: "Ctrl-Z", mac: "Command-Z" },
+            exec: (editor) => editor.undo(),
+          },
+          {
+            name: "redo",
+            bindKey: { win: "Ctrl-Y", mac: "Command-Y" },
+            exec: (editor) => editor.redo(),
+          },
+        ]}
       />
       <Toaster />
       {/* Floating Chat Button */}
