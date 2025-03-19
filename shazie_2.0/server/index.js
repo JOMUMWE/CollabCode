@@ -11,10 +11,12 @@ var bodyParser = require("body-parser");
 
 const app = express();
 app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  })
+  cors(
+  //   {
+  //   origin: process.env.FRONTEND_URL,
+  //   credentials: true,
+  // }
+)
 );
 const server = http.createServer(app);
 app.use(bodyParser.json());
@@ -70,10 +72,12 @@ app.get("/getUserData", async (req, res) => {
 });
 
 const io = require("socket.io")(server, {
-  cors: {
-    origin: [process.env.FRONTEND_URL],
-    credentials: true,
-  },
+  cors
+  // : 
+  // {
+  //   origin: [process.env.FRONTEND_URL],
+  //   credentials: true,
+  // },
 });
 
 const socketID_to_Users_Map = {};
