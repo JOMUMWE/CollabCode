@@ -14,7 +14,7 @@ import { useState } from "react";
 import SocketWrapper from "./components/socketWrapper";
 import Room from "./pages/Room";
 
-axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.baseURL = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL;
 axios.defaults.withCredentials = true;
 
 function App() {
