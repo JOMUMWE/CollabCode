@@ -11,14 +11,14 @@ var bodyParser = require("body-parser");
 
 const app = express();
 app.use(
-  cors(
-    {
+  cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
-  }
-)
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
 );
-const server = http.createServer(app);
+
 app.use(bodyParser.json());
 app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
@@ -70,15 +70,8 @@ app.get("/getUserData", async (req, res) => {
       res.json(data);
     });
 });
-
-const io = require("socket.io")(server, {
-  cors
-  // : 
-  // {
-  //   origin: [process.env.FRONTEND_URL],
-  //   credentials: true,
-  // },
-});
+const server = http.createServer(app);
+const io = require("socket.io")(server);
 
 const socketID_to_Users_Map = {};
 const roomID_to_Code_Map = {};
