@@ -69,7 +69,7 @@ export default function Example() {
                 viewBox="0 0 24 24"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="size-6"
+                className="block size-6 group-data-open:hidden"
               >
                 <path
                   strokeLinecap="round"
@@ -77,7 +77,6 @@ export default function Example() {
                   d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                 />
               </svg>
-
               <XIcon
                 aria-hidden="true"
                 className="hidden size-6 group-data-open:block"
