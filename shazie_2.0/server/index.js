@@ -14,8 +14,6 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
-    methods: "GET,POST,PUT,DELETE",
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 const server = http.createServer(app);
@@ -74,7 +72,6 @@ app.get("/getUserData", async (req, res) => {
 const io = require("socket.io")(server, {
   cors: {
     origin: [process.env.FRONTEND_URL],
-    methods: ["GET", "POST"],
     credentials: true,
   },
 });
