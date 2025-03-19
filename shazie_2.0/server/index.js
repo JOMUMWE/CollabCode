@@ -76,8 +76,6 @@ const io = require("socket.io")(server, {
     credentials: true,
     methods: "GET,POST,PUT,DELETE",
   },
-  maxHttpBufferSize: 1e8,
-  pingTimeout: 60000,
 });
 
 const socketID_to_Users_Map = {};
