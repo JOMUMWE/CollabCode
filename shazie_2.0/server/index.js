@@ -70,7 +70,15 @@ app.get("/getUserData", async (req, res) => {
     });
 });
 const server = http.createServer(app);
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: "GET,POST,PUT,DELETE",
+  },
+  maxHttpBufferSize: 1e8,
+  pingTimeout: 60000,
+});
 
 const socketID_to_Users_Map = {};
 const roomID_to_Code_Map = {};
