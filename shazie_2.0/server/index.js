@@ -12,7 +12,7 @@ var bodyParser = require("body-parser");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -73,7 +73,7 @@ app.get("/getUserData", async (req, res) => {
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -245,7 +245,7 @@ mongoose
   .then(() => console.log("✅ Database connected!"))
   .catch((err) => console.log("❌ Database not connected", err));
 
-const PORT = process.env.PORT || 8000;
+const PORT = 8000;
 
 server.listen(PORT, function () {
   console.log(`listening on port : ${PORT}`);
