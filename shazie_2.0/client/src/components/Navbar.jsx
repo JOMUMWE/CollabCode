@@ -63,10 +63,21 @@ export default function Example() {
             <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
-              <ArrowRightIcon
-                aria-hidden="true"
-                className="block size-4 group-data-open:hidden"
-              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+
               <XIcon
                 aria-hidden="true"
                 className="hidden size-6 group-data-open:block"
@@ -117,9 +128,7 @@ export default function Example() {
                   <span className="sr-only">Open user menu</span>
                   <img
                     alt=""
-                    src={
-                      profilePic
-                    }
+                    src={profilePic}
                     className="size-8 rounded-full object-cover "
                   />
                 </MenuButton>
