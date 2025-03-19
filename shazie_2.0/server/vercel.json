@@ -13,9 +13,5 @@
                 "src": "/(.*)",
                 "dest": "index.js"
             }
-        ],
-        "env": {
-            "MONGO_URL": "@mongo_url",
-            "JWT_SECRET": "@jwt_secret"
-        }
+        ]
     }
