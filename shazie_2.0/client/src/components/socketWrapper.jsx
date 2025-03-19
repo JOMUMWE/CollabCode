@@ -21,7 +21,7 @@ function addPropsToChildren(children, props) {
 
 export default function SocketWrapper({ children }) {
   const socket = io.connect(
-    import.meta.env.VITE_REACT_APP_BACKEND_BASEURL || "http://localhost:8000"
+    import.meta.env.VITE_REACT_APP_BACKEND_BASEURL
   );
 
   const location = useLocation();
