@@ -54,6 +54,25 @@ app.get("/getAccessToken", async (req, res) => {
     });
 });
 
+app.get("/checkTeamProjects", async (req, res) => {
+  const { teamId } = req.query;
+
+  try {
+    // Check if the team has any projects
+    const projects = await Project.find({ teamId });
+    if (projects.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No projects found for the team" });
+    }
+
+    res.status(200).json({ message: "Projects found", projects });
+  } catch (error) {
+    console.error("Error checking team projects:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.get("/getUserData", async (req, res) => {
   req.get("Authorization");
   await fetch("https://api.github.com/user", {

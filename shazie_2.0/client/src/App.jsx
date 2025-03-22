@@ -13,6 +13,8 @@ import Projects from "./components/projects";
 import { useState } from "react";
 import SocketWrapper from "./components/socketWrapper";
 import Room from "./pages/Room";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
 
 axios.defaults.baseURL = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL;
 axios.defaults.withCredentials = true;
@@ -69,6 +71,8 @@ function App() {
             </SocketWrapper>
           }
         />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/help" element={<FAQ />} />
         <Route path="/*" element={<Page404 />} />
       </Routes>
     </>

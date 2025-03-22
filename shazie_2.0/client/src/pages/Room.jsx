@@ -78,7 +78,7 @@ export default function Room({ socket, userid, name }) {
   useEffect(() => {
     fetchFiles();
   }, [roomId]);
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -92,29 +92,47 @@ export default function Room({ socket, userid, name }) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const fileContent = e.target.result;
-      try {
-        // Send the file to the backend
-        const response = await axios.post("/uploadFile", {
-          roomId,
-          filename: file.name,
-          content: fileContent,
-          uploadedBy: userid, // Assuming the user's ID is available in the socket
-        });
-        // Set the file content locally
-        setUploadedFileContent(fileContent);
-        setFetchedCode(fileContent);
-        // Emit the updated code to the server
-        socket.emit("update code", { roomId, code: fileContent });
-        toast.success("File uploaded and saved successfully!");
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        toast.error("Failed to upload file.");
+    try {
+      // Check if the team has any projects
+      const response = await axios.get(`/checkTeamProjects`, {
+        params: { teamId: userid }, // Assuming `userid` is the team ID
+      });
+
+      if (response.status === 404) {
+        toast.error("No projects found for the team. Please create a project.");
+        navigate("/projects"); // Redirect to the projects page
+        return;
       }
-    };
-    reader.readAsText(file);
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const fileContent = e.target.result;
+        try {
+          // Send the file to the backend
+          const uploadResponse = await axios.post("/uploadFile", {
+            roomId,
+            filename: file.name,
+            content: fileContent,
+            uploadedBy: userid, // Assuming the user's ID is available in the socket
+          });
+
+          // Set the file content locally
+          setUploadedFileContent(fileContent);
+          setFetchedCode(fileContent);
+
+          // Emit the updated code to the server
+          socket.emit("update code", { roomId, code: fileContent });
+          toast.success("File uploaded and saved successfully!");
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          toast.error("Failed to upload file.");
+        }
+      };
+      reader.readAsText(file);
+    } catch (error) {
+      console.error("Error checking team projects:", error);
+      toast.error("Failed to check team projects.");
+    }
   };
 
   const toggleChat = () => {
@@ -381,12 +399,12 @@ export default function Room({ socket, userid, name }) {
         {displayedUsers.map((user, index) => (
           <div
             key={index}
-            className="avatar w-8"
+            className="avatar w-10 h-10 flex flex-row justify-center items-center"
             style={{
               backgroundColor: generateColor(user),
             }}
           >
-            {user.slice(0, 2).toUpperCase()}
+            <p>{user.slice(0, 2).toUpperCase()}</p>
           </div>
         ))}
         {extraCount > 0 && (
@@ -539,17 +557,17 @@ export default function Room({ socket, userid, name }) {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`chat-message mb-2 flex flex-col ${
-                  msg.username === "You" ? "text-right" : "text-left"
+                className={`chat mb-2 flex flex-col ${
+                  msg.username === "You" ? "chat-start" : "chat-end"
                 }`}
               >
                 <span
-                  className="font-bold text-xs"
+                  className="font-semibold text-xs"
                   style={{ color: generateColor(msg.username) }}
                 >
                   {msg.username}
                 </span>
-                <span className="text-sm font-semibold">{msg.text}</span>
+                <span className="text-sm font-semibold chat-bubble">{msg.text}</span>
               </div>
             ))}
           </div>

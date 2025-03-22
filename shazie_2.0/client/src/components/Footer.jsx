@@ -24,17 +24,17 @@ export default function Footer() {
 
           {/* Right Section */}
           <div className="flex justify-center md:justify-end space-x-4 mt-4 md:mt-0">
-            <a href="#" className=" hover:underline">
+            <a href="/contact" className=" hover:underline">
               Contact
             </a>
-            <a href="#" className="hover:underline">
+            <a href="/help" className="hover:underline">
               Help
             </a>
           </div>
         </div>
         <footer className="footer sm:footer-horizontal bg-white text-black items-center p-4">
           <aside className="grid-flow-col items-center">
-            <p>Copyright © {new Date().getFullYear()} - All right reserved</p>
+            <p className="text-sm text-gray-600">© {new Date().getFullYear()}, CodeCollab</p>
           </aside>
           <nav className="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
             <a href="https://x.com/joshuamuindi10">
