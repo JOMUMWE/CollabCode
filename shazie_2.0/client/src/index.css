@@ -28,6 +28,7 @@ body {
   border-bottom: 1px solid #ccc;
   flex-wrap: nowrap;
   overflow-x: scroll;
+  width: 100%;
 }
 
 .tab {

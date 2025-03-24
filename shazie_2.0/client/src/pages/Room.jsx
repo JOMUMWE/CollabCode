@@ -129,50 +129,48 @@ export default function Room({ socket, userid, name }) {
     return "plain_text"; // Default to plain text if no match is found
   }
 
+  const handleFileOpen = (file) => {
+    const detectedMode = getModeFromFileExtension(file.filename); // Detect the mode
 
- const handleFileOpen = (file) => {
-   const detectedMode = getModeFromFileExtension(file.filename); // Detect the mode
+    // Check if the file is already open
+    const existingTab = openTabs.find((tab) => tab.filename === file.filename);
 
-   // Check if the file is already open
-   const existingTab = openTabs.find((tab) => tab.filename === file.filename);
+    if (existingTab) {
+      // Switch to the existing tab
+      setActiveTab(existingTab.filename);
+    } else {
+      // Open a new tab
+      const newTab = {
+        filename: file.filename,
+        content: file.content,
+        mode: detectedMode,
+      };
+      setOpenTabs((prevTabs) => [...prevTabs, newTab]);
+      setActiveTab(newTab.filename);
 
-   if (existingTab) {
-     // Switch to the existing tab
-     setActiveTab(existingTab.filename);
-   } else {
-     // Open a new tab
-     const newTab = {
-       filename: file.filename,
-       content: file.content,
-       mode: detectedMode,
-     };
-     setOpenTabs((prevTabs) => [...prevTabs, newTab]);
-     setActiveTab(newTab.filename);
-
-     // Emit the event to notify other users
-     socket.emit("tab opened", {
-       roomId,
-       tab: newTab,
-     });
-   }
- };
- useEffect(() => {
-  socket.on("tab opened", ({ tab }) => {
-    // Check if the tab is already open
-    const existingTab = openTabs.find((t) => t.filename === tab.filename);
-
-    if (!existingTab) {
-      // Add the new tab and set it as active
-      setOpenTabs((prevTabs) => [...prevTabs, tab]);
-      setActiveTab(tab.filename);
+      // Emit the event to notify other users
+      socket.emit("tab opened", {
+        roomId,
+        tab: newTab,
+      });
     }
-  });
-
-  return () => {
-    socket.off("tab opened");
   };
-}, [socket, openTabs]);
+  useEffect(() => {
+    socket.on("tab opened", ({ tab }) => {
+      // Check if the tab is already open
+      const existingTab = openTabs.find((t) => t.filename === tab.filename);
 
+      if (!existingTab) {
+        // Add the new tab and set it as active
+        setOpenTabs((prevTabs) => [...prevTabs, tab]);
+        setActiveTab(tab.filename);
+      }
+    });
+
+    return () => {
+      socket.off("tab opened");
+    };
+  }, [socket, openTabs]);
 
   const handleCloseTab = (filename) => {
     setOpenTabs((prevTabs) =>
@@ -328,14 +326,14 @@ export default function Room({ socket, userid, name }) {
       setLanguage(languageUsed);
     });
 
-     socket.on("on code change", ({ filename, code }) => {
-       // Update the content of the corresponding tab
-       setOpenTabs((prevTabs) =>
-         prevTabs.map((tab) =>
-           tab.filename === filename ? { ...tab, content: code } : tab
-         )
-       );
-     });
+    socket.on("on code change", ({ filename, code }) => {
+      // Update the content of the corresponding tab
+      setOpenTabs((prevTabs) =>
+        prevTabs.map((tab) =>
+          tab.filename === filename ? { ...tab, content: code } : tab
+        )
+      );
+    });
 
     socket.on("new member joined", ({ username }) => {
       toast(`${username} joined`);
@@ -604,25 +602,25 @@ export default function Room({ socket, userid, name }) {
 
       <div className="flex flex-col w-[100%]">
         <div className="tabs">
-  {openTabs.map((tab) => (
-    <button
-      key={tab.filename}
-      className={`tab ${activeTab === tab.filename ? "active" : ""}`}
-      onClick={() => setActiveTab(tab.filename)}
-    >
-      {tab.filename}
-      <span
-        className="close-tab"
-        onClick={(e) => {
-          e.stopPropagation(); // Prevent switching tabs when closing
-          handleCloseTab(tab.filename);
-        }}
-      >
-        ✕
-      </span>
-    </button>
-  ))}
-</div>
+          {openTabs.map((tab) => (
+            <button
+              key={tab.filename}
+              className={`tab text-xs ${activeTab === tab.filename ? "active" : ""}`}
+              onClick={() => setActiveTab(tab.filename)}
+            >
+              {tab.filename}
+              <span
+                className="close-tab"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent switching tabs when closing
+                  handleCloseTab(tab.filename);
+                }}
+              >
+                ✕
+              </span>
+            </button>
+          ))}
+        </div>
         {openTabs.map((tab) =>
           tab.filename === activeTab ? (
             <AceEditor
@@ -644,7 +642,11 @@ export default function Room({ socket, userid, name }) {
                       : t
                   )
                 );
-                socket.emit("update code", { roomId,filename: tab.filename, code: newValue });
+                socket.emit("update code", {
+                  roomId,
+                  filename: tab.filename,
+                  code: newValue,
+                });
               }}
               fontSize={15}
               showLineNumbers={true}
