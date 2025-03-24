@@ -62,37 +62,39 @@ export default function Room({ socket, userid, name }) {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [uploadedFileContent, setUploadedFileContent] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [openTabs, setOpenTabs] = useState([]); // Tracks all open tabs
+  const [activeTab, setActiveTab] = useState(null); // Tracks the currently active tab
 
- const supportedExtensions = {
-   javascript: [".js", ".mjs", ".cjs"],
-   java: [".java"],
-   c_cpp: [".c", ".cpp", ".h", ".hpp"],
-   python: [".py"],
-   typescript: [".ts", ".tsx"],
-   golang: [".go"],
-   yaml: [".yaml", ".yml"],
-   html: [".html", ".htm"],
-   css: [".css", ".scss", ".sass"],
-   ruby: [".rb"],
-   php: [".php"],
-   swift: [".swift"],
-   kotlin: [".kt", ".kts"],
-   rust: [".rs"],
-   perl: [".pl", ".pm"],
-   shell: [".sh", ".bash"],
-   sql: [".sql"],
-   json: [".json"],
-   xml: [".xml"],
-   markdown: [".md"],
-   dart: [".dart"],
-   scala: [".scala"],
-   r: [".r"],
-   lua: [".lua"],
-   vb: [".vb"],
-   csharp: [".cs"],
-   objectivec: [".m", ".mm"],
-   plaintext: [".txt"],
- };
+  const supportedExtensions = {
+    javascript: [".js", ".mjs", ".cjs"],
+    java: [".java"],
+    c_cpp: [".c", ".cpp", ".h", ".hpp"],
+    python: [".py"],
+    typescript: [".ts", ".tsx"],
+    golang: [".go"],
+    yaml: [".yaml", ".yml"],
+    html: [".html", ".htm"],
+    css: [".css", ".scss", ".sass"],
+    ruby: [".rb"],
+    php: [".php"],
+    swift: [".swift"],
+    kotlin: [".kt", ".kts"],
+    rust: [".rs"],
+    perl: [".pl", ".pm"],
+    shell: [".sh", ".bash"],
+    sql: [".sql"],
+    json: [".json"],
+    xml: [".xml"],
+    markdown: [".md"],
+    dart: [".dart"],
+    scala: [".scala"],
+    r: [".r"],
+    lua: [".lua"],
+    vb: [".vb"],
+    csharp: [".cs"],
+    objectivec: [".m", ".mm"],
+    plaintext: [".txt"],
+  };
 
   // Function to determine displayed users and extra count
   const getDisplayedUsers = () => {
@@ -117,7 +119,6 @@ export default function Room({ socket, userid, name }) {
     fetchFiles();
   }, [roomId]);
 
-
   function getModeFromFileExtension(filename) {
     const fileExtension = filename.split(".").pop();
     for (const [mode, extensions] of Object.entries(supportedExtensions)) {
@@ -127,6 +128,63 @@ export default function Room({ socket, userid, name }) {
     }
     return "plain_text"; // Default to plain text if no match is found
   }
+
+
+ const handleFileOpen = (file) => {
+   const detectedMode = getModeFromFileExtension(file.filename); // Detect the mode
+
+   // Check if the file is already open
+   const existingTab = openTabs.find((tab) => tab.filename === file.filename);
+
+   if (existingTab) {
+     // Switch to the existing tab
+     setActiveTab(existingTab.filename);
+   } else {
+     // Open a new tab
+     const newTab = {
+       filename: file.filename,
+       content: file.content,
+       mode: detectedMode,
+     };
+     setOpenTabs((prevTabs) => [...prevTabs, newTab]);
+     setActiveTab(newTab.filename);
+
+     // Emit the event to notify other users
+     socket.emit("tab opened", {
+       roomId,
+       tab: newTab,
+     });
+   }
+ };
+ useEffect(() => {
+  socket.on("tab opened", ({ tab }) => {
+    // Check if the tab is already open
+    const existingTab = openTabs.find((t) => t.filename === tab.filename);
+
+    if (!existingTab) {
+      // Add the new tab and set it as active
+      setOpenTabs((prevTabs) => [...prevTabs, tab]);
+      setActiveTab(tab.filename);
+    }
+  });
+
+  return () => {
+    socket.off("tab opened");
+  };
+}, [socket, openTabs]);
+
+
+  const handleCloseTab = (filename) => {
+    setOpenTabs((prevTabs) =>
+      prevTabs.filter((tab) => tab.filename !== filename)
+    );
+
+    // If the closed tab is the active tab, switch to another tab
+    if (activeTab === filename) {
+      const remainingTabs = openTabs.filter((tab) => tab.filename !== filename);
+      setActiveTab(remainingTabs.length > 0 ? remainingTabs[0].filename : null);
+    }
+  };
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -270,9 +328,14 @@ export default function Room({ socket, userid, name }) {
       setLanguage(languageUsed);
     });
 
-    socket.on("on code change", ({ code }) => {
-      setFetchedCode(code);
-    });
+     socket.on("on code change", ({ filename, code }) => {
+       // Update the content of the corresponding tab
+       setOpenTabs((prevTabs) =>
+         prevTabs.map((tab) =>
+           tab.filename === filename ? { ...tab, content: code } : tab
+         )
+       );
+     });
 
     socket.on("new member joined", ({ username }) => {
       toast(`${username} joined`);
@@ -521,13 +584,7 @@ export default function Room({ socket, userid, name }) {
               <li key={index} className="mb-1 ml-3">
                 <button
                   className="text-gray-300 hover:underline text-xs m-0 p-0"
-                  onClick={() => {
-                    const detectedMode = getModeFromFileExtension(
-                      file.filename
-                    ); // Detect the mode
-                    setLanguage(detectedMode); // Update the editor's mode
-                    setFetchedCode(file.content); // Open file content in editor
-                  }}
+                  onClick={() => handleFileOpen(file)}
                 >
                   {file.filename}
                 </button>
@@ -545,55 +602,71 @@ export default function Room({ socket, userid, name }) {
         </button>
       </div>
 
-      <AceEditor
-        placeholder="Happy Coding!!!"
-        className="roomCodeEditor"
-        mode={language}
-        keyboardHandler={codeKeybinding}
-        theme="dracula"
-        name="collabEditor"
-        width="full"
-        height="auto"
-        value={fetchedCode}
-        onChange={onChange}
-        fontSize={15}
-        showLineNumbers={true}
-        showPrintMargin={true}
-        showGutter={true}
-        highlightActiveLine={true}
-        enableLiveAutocompletion={true}
-        enableBasicAutocompletion={false}
-        enableSnippets={true}
-        wrapEnabled={true}
-        tabSize={2}
-        editorProps={{
-          $blockScrolling: true,
+      <div className="flex flex-col w-[100%]">
+        <div className="tabs">
+  {openTabs.map((tab) => (
+    <button
+      key={tab.filename}
+      className={`tab ${activeTab === tab.filename ? "active" : ""}`}
+      onClick={() => setActiveTab(tab.filename)}
+    >
+      {tab.filename}
+      <span
+        className="close-tab"
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent switching tabs when closing
+          handleCloseTab(tab.filename);
         }}
-        setOptions={{
-          showFoldWidgets: true, // Enable fold widgets
-          tooltipFollowsMouse: true, // Enable tooltips
-        }}
-        // annotations={[
-        //   {
-        //     row: 2, // Line number
-        //     column: 4, // Column number
-        //     text: "This is a warning", // Text to display
-        //     type: "warning", // Can be 'error', 'warning', or 'info'
-        //   },
-        // ]}
-        commands={[
-          {
-            name: "undo",
-            bindKey: { win: "Ctrl-Z", mac: "Command-Z" },
-            exec: (editor) => editor.undo(),
-          },
-          {
-            name: "redo",
-            bindKey: { win: "Ctrl-Y", mac: "Command-Y" },
-            exec: (editor) => editor.redo(),
-          },
-        ]}
-      />
+      >
+        ✕
+      </span>
+    </button>
+  ))}
+</div>
+        {openTabs.map((tab) =>
+          tab.filename === activeTab ? (
+            <AceEditor
+              key={tab.filename}
+              placeholder="Happy Coding!!!"
+              className="roomCodeEditor"
+              mode={tab.mode}
+              theme="dracula"
+              name={tab.filename}
+              width="100%"
+              height="auto"
+              value={tab.content}
+              onChange={(newValue) => {
+                // Update the content of the active tab
+                setOpenTabs((prevTabs) =>
+                  prevTabs.map((t) =>
+                    t.filename === tab.filename
+                      ? { ...t, content: newValue }
+                      : t
+                  )
+                );
+                socket.emit("update code", { roomId,filename: tab.filename, code: newValue });
+              }}
+              fontSize={15}
+              showLineNumbers={true}
+              showPrintMargin={true}
+              showGutter={true}
+              highlightActiveLine={true}
+              enableLiveAutocompletion={true}
+              enableBasicAutocompletion={false}
+              enableSnippets={true}
+              wrapEnabled={true}
+              tabSize={2}
+              editorProps={{
+                $blockScrolling: true,
+              }}
+              setOptions={{
+                showFoldWidgets: true,
+                tooltipFollowsMouse: true,
+              }}
+            />
+          ) : null
+        )}
+      </div>
       <Toaster />
       {/* Floating Chat Button */}
       <button

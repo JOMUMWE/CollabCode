@@ -166,6 +166,11 @@ io.on("connection", function (socket) {
     }
   });
 
+  socket.on("tab opened", ({ roomId, tab }) => {
+    // Broadcast the tab opened event to other users in the room
+    socket.to(roomId).emit("tab opened", { tab });
+  });
+
   // for user editing the code to reflect on his/her screen
   socket.on("syncing the language", ({ roomId }) => {
     if (roomId in roomID_to_Code_Map) {
@@ -175,14 +180,21 @@ io.on("connection", function (socket) {
     }
   });
 
-  // for other users in room to view the changes
-  socket.on("update code", ({ roomId, code }) => {
+  socket.on("update code", ({ roomId, filename, code }) => {
     if (roomId in roomID_to_Code_Map) {
-      roomID_to_Code_Map[roomId]["code"] = code;
+      // Update the code for the specific file in the room
+      if (!roomID_to_Code_Map[roomId][filename]) {
+        roomID_to_Code_Map[roomId][filename] = {};
+      }
+      roomID_to_Code_Map[roomId][filename].code = code;
     } else {
-      roomID_to_Code_Map[roomId] = { code };
-    } 
-    socket.to(roomId).emit("on code change", { code });
+      roomID_to_Code_Map[roomId] = {
+        [filename]: { code },
+      };
+    }
+
+    // Broadcast the code change to other users in the room
+    socket.to(roomId).emit("on code change", { filename, code });
   });
 
   // for user editing the code to reflect on his/her screen
