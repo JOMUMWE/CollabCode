@@ -3,6 +3,7 @@ import { useState, useEffect} from "react";
 import { PlusIcon } from "@heroicons/react/outline";
 import axios from "axios";
 import TaskForm from "./utilities/TaskForm";
+// import Timeline from "./Timeline";
 
 export default function Projects(props) {
   const [active, setActive] = useState(true);

@@ -93,17 +93,7 @@ export default function Room({ socket, userid, name }) {
     }
 
     try {
-      // Check if the team has any projects
-      const response = await axios.get(`/checkTeamProjects`, {
-        params: { teamId: userid }, // Assuming `userid` is the team ID
-      });
-
-      if (response.status === 404) {
-        toast.error("No projects found for the team. Please create a project.");
-        navigate("/projects"); // Redirect to the projects page
-        return;
-      }
-
+      
       const reader = new FileReader();
       reader.onload = async (e) => {
         const fileContent = e.target.result;
@@ -122,7 +112,7 @@ export default function Room({ socket, userid, name }) {
 
           // Emit the updated code to the server
           socket.emit("update code", { roomId, code: fileContent });
-          toast.success("File uploaded and saved successfully!");
+          toast.success(uploadResponse.message);
         } catch (error) {
           console.error("Error uploading file:", error);
           toast.error("Failed to upload file.");
