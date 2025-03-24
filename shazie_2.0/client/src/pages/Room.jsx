@@ -116,6 +116,18 @@ export default function Room({ socket, userid, name }) {
   useEffect(() => {
     fetchFiles();
   }, [roomId]);
+
+
+  function getModeFromFileExtension(filename) {
+    const fileExtension = filename.split(".").pop();
+    for (const [mode, extensions] of Object.entries(supportedExtensions)) {
+      if (extensions.includes(`.${fileExtension}`)) {
+        return mode; // Return the corresponding Ace Editor mode
+      }
+    }
+    return "plain_text"; // Default to plain text if no match is found
+  }
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -131,10 +143,14 @@ export default function Room({ socket, userid, name }) {
     }
 
     try {
-      
       const reader = new FileReader();
       reader.onload = async (e) => {
         const fileContent = e.target.result;
+
+        // Automatically detect the mode based on the file extension
+        const detectedMode = getModeFromFileExtension(file.name);
+        setLanguage(detectedMode); // Update the editor's mode
+
         try {
           // Send the file to the backend
           const uploadResponse = await axios.post("/uploadFile", {
@@ -505,7 +521,13 @@ export default function Room({ socket, userid, name }) {
               <li key={index} className="mb-1 ml-3">
                 <button
                   className="text-gray-300 hover:underline text-xs m-0 p-0"
-                  onClick={() => setFetchedCode(file.content)} // Open file content in editor
+                  onClick={() => {
+                    const detectedMode = getModeFromFileExtension(
+                      file.filename
+                    ); // Detect the mode
+                    setLanguage(detectedMode); // Update the editor's mode
+                    setFetchedCode(file.content); // Open file content in editor
+                  }}
                 >
                   {file.filename}
                 </button>
@@ -615,7 +637,9 @@ export default function Room({ socket, userid, name }) {
                 >
                   {msg.username}
                 </span>
-                <span className="text-sm font-semibold chat-bubble">{msg.text}</span>
+                <span className="text-sm font-semibold chat-bubble">
+                  {msg.text}
+                </span>
               </div>
             ))}
           </div>
