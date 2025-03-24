@@ -32,7 +32,7 @@ export default function Footer() {
             </a>
           </div>
         </div>
-        <footer className="footer sm:footer-horizontal bg-white text-black items-center p-4">
+        <footer className="footer sm:footer-horizontal text-black items-center p-4">
           <aside className="grid-flow-col items-center">
             <p className="text-sm text-gray-600">© {new Date().getFullYear()}, CodeCollab</p>
           </aside>

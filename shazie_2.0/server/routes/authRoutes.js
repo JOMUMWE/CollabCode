@@ -21,6 +21,7 @@ const {
   getTasksForProject,
   validateEmailForProject,
 } = require("../controllers/authController");
+const { submitContactForm } = require("../controllers/contact");
 
 router.get("/", hi);
 router.post("/register", registerUser);
@@ -41,5 +42,6 @@ router.get("/getFilesForRoom", getFilesForRoom);
 router.post("/addTask", addTaskToProject);
 router.get("/getTasks", getTasksForProject);
 router.get("/validateEmailForProject", validateEmailForProject);
+router.post("/submitContactForm", submitContactForm);
 
 module.exports = router;

@@ -100,6 +100,15 @@ const RoomSchema = new mongoose.Schema({
   active: { type: Boolean, default: true },
 });
 
+const contactSchema = new mongoose.Schema({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  company: { type: String },
+  email: { type: String, required: true },
+  phoneNumber: { type: String },
+  message: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
 
 module.exports = {
   User: mongoose.model("User", userSchema),
@@ -110,5 +119,6 @@ module.exports = {
   VersionControl: mongoose.model("VersionControl", versionControlSchema),
   Team: mongoose.model("Team", TeamSchema),
   Room: mongoose.model("Room", RoomSchema),
+  Contact: mongoose.model("Contact", contactSchema),
 };
 

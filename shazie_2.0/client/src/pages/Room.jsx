@@ -16,6 +16,25 @@ import "ace-builds/src-noconflict/mode-golang";
 import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/mode-html";
 import "ace-builds/src-noconflict/mode-css";
+import "ace-builds/src-noconflict/mode-ruby";
+import "ace-builds/src-noconflict/mode-php";
+import "ace-builds/src-noconflict/mode-swift";
+import "ace-builds/src-noconflict/mode-kotlin";
+import "ace-builds/src-noconflict/mode-rust";
+import "ace-builds/src-noconflict/mode-perl";
+import "ace-builds/src-noconflict/mode-sh";
+import "ace-builds/src-noconflict/mode-sql";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/mode-xml";
+import "ace-builds/src-noconflict/mode-markdown";
+import "ace-builds/src-noconflict/mode-dart";
+import "ace-builds/src-noconflict/mode-scala";
+import "ace-builds/src-noconflict/mode-r";
+import "ace-builds/src-noconflict/mode-lua";
+import "ace-builds/src-noconflict/mode-vbscript";
+import "ace-builds/src-noconflict/mode-csharp";
+import "ace-builds/src-noconflict/mode-objectivec";
+import "ace-builds/src-noconflict/mode-plain_text";
 
 //for loading the languages on demand to be used later
 // const loadMode = async (language) => {
@@ -44,17 +63,36 @@ export default function Room({ socket, userid, name }) {
   const [uploadedFileContent, setUploadedFileContent] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
-  const supportedExtensions = {
-    javascript: [".js"],
-    java: [".java"],
-    c_cpp: [".c", ".cpp", ".h"],
-    python: [".py"],
-    typescript: [".ts"],
-    golang: [".go"],
-    yaml: [".yaml", ".yml"],
-    html: [".html"],
-    css: [".css"],
-  };
+ const supportedExtensions = {
+   javascript: [".js", ".mjs", ".cjs"],
+   java: [".java"],
+   c_cpp: [".c", ".cpp", ".h", ".hpp"],
+   python: [".py"],
+   typescript: [".ts", ".tsx"],
+   golang: [".go"],
+   yaml: [".yaml", ".yml"],
+   html: [".html", ".htm"],
+   css: [".css", ".scss", ".sass"],
+   ruby: [".rb"],
+   php: [".php"],
+   swift: [".swift"],
+   kotlin: [".kt", ".kts"],
+   rust: [".rs"],
+   perl: [".pl", ".pm"],
+   shell: [".sh", ".bash"],
+   sql: [".sql"],
+   json: [".json"],
+   xml: [".xml"],
+   markdown: [".md"],
+   dart: [".dart"],
+   scala: [".scala"],
+   r: [".r"],
+   lua: [".lua"],
+   vb: [".vb"],
+   csharp: [".cs"],
+   objectivec: [".m", ".mm"],
+   plaintext: [".txt"],
+ };
 
   // Function to determine displayed users and extra count
   const getDisplayedUsers = () => {
@@ -144,6 +182,26 @@ export default function Room({ socket, userid, name }) {
     "golang",
     "yaml",
     "html",
+    "css",
+    "ruby",
+    "php",
+    "swift",
+    "kotlin",
+    "rust",
+    "perl",
+    "shell",
+    "sql",
+    "json",
+    "xml",
+    "markdown",
+    "dart",
+    "scala",
+    "r",
+    "lua",
+    "vb",
+    "csharp",
+    "objectivec",
+    "plaintext",
   ];
 
   function onChange(newValue) {
