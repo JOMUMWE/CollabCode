@@ -6,6 +6,7 @@ import { generateColor } from "../utils";
 import { PlusIcon } from "@heroicons/react/outline";
 import axios from "axios";
 import "./Room.css";
+import GitPanel from "../components/GitPanel";
 
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/mode-typescript";
@@ -64,6 +65,9 @@ export default function Room({ socket, userid, name }) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openTabs, setOpenTabs] = useState([]); // Tracks all open tabs
   const [activeTab, setActiveTab] = useState(null); // Tracks the currently active tab
+
+  // Add state for Git panel
+  const [showGitPanel, setShowGitPanel] = useState(false);
 
   const supportedExtensions = {
     javascript: [".js", ".mjs", ".cjs"],
@@ -243,6 +247,11 @@ export default function Room({ socket, userid, name }) {
       }
       return !prev;
     });
+  };
+
+  // Toggle Git panel visibility
+  const toggleGitPanel = () => {
+    setShowGitPanel(!showGitPanel);
   };
 
   const languagesAvailable = [
@@ -605,7 +614,9 @@ export default function Room({ socket, userid, name }) {
           {openTabs.map((tab) => (
             <button
               key={tab.filename}
-              className={`tab text-xs ${activeTab === tab.filename ? "active" : ""}`}
+              className={`tab text-xs ${
+                activeTab === tab.filename ? "active" : ""
+              }`}
               onClick={() => setActiveTab(tab.filename)}
             >
               {tab.filename}
@@ -672,7 +683,7 @@ export default function Room({ socket, userid, name }) {
       <Toaster />
       {/* Floating Chat Button */}
       <button
-        className="fixed bottom-4 right-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-500"
+        className="mt-3 fixed bottom-4 right-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-500"
         onClick={toggleChat}
       >
         <svg
@@ -694,6 +705,31 @@ export default function Room({ socket, userid, name }) {
             {unreadMessages}
           </span>
         )}
+      </button>
+      {/* Git Panel Component */}
+      <GitPanel
+        roomId={roomId}
+        socket={socket}
+        isVisible={showGitPanel}
+        onClose={toggleGitPanel}
+        onFilesFetched={fetchFiles}
+        username={name}
+      />
+
+      {/* Git floating button */}
+      <button
+        className="fixed bottom-16 right-4 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-500"
+        onClick={toggleGitPanel}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 16 16"
+        >
+          <path d="M15.698 7.287 8.712.302a1.03 1.03 0 0 0-1.457 0l-1.45 1.45 1.84 1.84a1.223 1.223 0 0 1 1.55 1.56l1.773 1.774a1.224 1.224 0 0 1 1.267 2.025 1.226 1.226 0 0 1-2.002-1.334L8.58 5.963v4.353a1.226 1.226 0 1 1-1.008-.036V5.887a1.226 1.226 0 0 1-.666-1.608L5.093 2.465l-4.79 4.79a1.03 1.03 0 0 0 0 1.457l6.986 6.986a1.03 1.03 0 0 0 1.457 0l6.953-6.953a1.031 1.031 0 0 0 0-1.457" />
+        </svg>
       </button>
       {/* Floating Chat Container */}
       {isChatVisible && (

@@ -8,6 +8,7 @@ const http = require("http");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 var bodyParser = require("body-parser");
+const gitRoutes = require("./routes/gitRoutes");
 
 const app = express();
 app.use(
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // ✅ Use authentication routes
 app.use("/", require("./routes/authRoutes"));
+app.use('/git', gitRoutes);
 
 //github login logic
 const CLIENT_SECRET = "6e01d1e3a20862e0e560aa9144b9bf500bcd0548";
