@@ -18,7 +18,6 @@ export default function TaskForm({ projectId, onTaskAdded, userid }) {
       setEmailValid(true);
       return response.data.userId;
     } catch (error) {
-      setEmailValid(false);
       toast.error(error.response?.data?.error || "Failed to validate email");
       return null;
     }

@@ -38,7 +38,6 @@ export default function Example() {
     { name: 'Dashboard', href: '/dashboard/dash', current: false },
     { name: 'Team', href: '/dashboard/teams', current: false },
     { name: 'Projects', href: '/dashboard/projects', current: false },
-    { name: 'Calendar', href: '/dashboard/calendar', current: false },
   ]
 
   function classNames(...classes) {

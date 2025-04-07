@@ -13,19 +13,38 @@ export default function Projects(props) {
   // Fetch projects from the backend
   useEffect(() => {
     const fetchProjects = async () => {
-      try {
-        const userId = props.user.id;
-        const { data } = await axios.get(`/getProjects?userId=${userId}`);
-        setProjects(data);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      const userId = props.user.id;
+      const { data } = await axios.get(`/getProjects?userId=${userId}`);
+
+      // Fetch tasks for each project
+      const projectsWithTasks = await Promise.all(
+        data.map(async (project) => {
+          const tasks = await fetchTasks(project._id);
+          return { ...project, tasks };
+        })
+      );
+
+      setProjects(projectsWithTasks);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setLoading(false);
+    }}
+    
 
     fetchProjects();
   }, [props]);
+
+const fetchTasks = async (projectId) => {
+  try {
+    const { data } = await axios.get(`/getTasks?projectId=${projectId}`);
+    return data; // Return the tasks
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    return [];
+  }
+};
 
   const handleTaskAdded = (projectId, task) => {
     setProjects((prevProjects) =>
@@ -69,14 +88,44 @@ export default function Projects(props) {
                     ? new Date(project.endDate).toLocaleDateString()
                     : "Ongoing"}
                 </p>
-                <button
-                  className="bg-indigo-600 flex w-36 justify-center items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
-                  onClick={() =>
-                    document.getElementById("my_modal_4").showModal()
-                  }
-                >
-                  <PlusIcon className="w-4 h-4" /> Add Task
-                </button>
+                {/* Dropdown for tasks */}
+                <div className="flex flex-row-reverse items-center justify-between mt-4">
+                  <details className="dropdown dropdown-right mt-4">
+                    <summary className="btn btn-sm btn-primary">
+                      View Tasks
+                    </summary>
+                    <ul className="dropdown-content menu bg-base-100 rounded-box z-[1] w-[70vh] p-2 shadow">
+                      {project.tasks && project.tasks.length > 0 ? (
+                        project.tasks.map((task) => (
+                          <li key={task._id} className="p-2">
+                            <div>
+                              <p className="font-semibold w-[20%]">{task.taskName}</p>
+                              <p>Status: {task.status}</p>
+                              <p className="w-[20%]">
+                                Due Date:{" "}
+                                {new Date(task.dueDate).toLocaleDateString()}
+                              </p>
+                              <p className="w-[40%] ">
+                                Assigned To:{" "}
+                                {task.assignedTo?.name || "Unassigned"}
+                              </p>
+                            </div>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="p-2 text-gray-500">No tasks available</li>
+                      )}
+                    </ul>
+                  </details>
+                  <button
+                    className="bg-indigo-600 flex w-36 justify-center items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
+                    onClick={() =>
+                      document.getElementById("my_modal_4").showModal()
+                    }
+                  >
+                    <PlusIcon className="w-4 h-4" /> Add Task
+                  </button>
+                </div>
                 <dialog id="my_modal_4" className="modal w-fit mx-auto ">
                   <div className="modal-box w-full bg-white">
                     <div className="modal-action w-full">
