@@ -514,6 +514,154 @@ const validateEmailForProject = async (req, res) => {
   }
 };
 
+const saveFile = async (req, res) => {
+  const { roomId, filename, content } = req.body;
+
+  try {
+    // Find the team associated with the room
+    const team = await Team.findOne({ roomId });
+    if (!team) {
+      return res.status(404).json({ error: "Team not found for this room." });
+    }
+
+    // Find the project associated with the team
+    const project = await Project.findOne({ teamId: team._id });
+    if (!project) {
+      return res.status(404).json({ error: "No project found for this team." });
+    }
+
+    // Check if the file already exists
+    const existingFile = project.files.find(
+      (file) => file.filename === filename
+    );
+    if (existingFile) {
+      // Update the file content
+      existingFile.content = content;
+    } else {
+      // Add a new file
+      project.files.push({ filename, content });
+    }
+
+    // Save the project
+    await project.save();
+
+    // Emit the saved file to all users in the room
+    req.app.get("io").to(roomId).emit("file saved", {
+      filename,
+      content,
+    });
+
+    res.status(200).json({ message: "File saved successfully." });
+  } catch (error) {
+    console.error("Error saving file:", error);
+    res.status(500).json({ error: "Failed to save file." });
+  }
+};
+
+const createFileOrFolder = async (req, res) => {
+  const { projectId, type, name, content, parentId, uploadedBy } = req.body;
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const newFileOrFolder = {
+      type,
+      name,
+      content: type === "file" ? content : undefined,
+      parentId: parentId || null,
+      uploadedBy,
+    };
+
+    project.files.push(newFileOrFolder);
+    await project.save();
+
+    res
+      .status(201)
+      .json({ message: `${type} created successfully`, newFileOrFolder });
+  } catch (error) {
+    console.error("Error creating file or folder:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getFilesAndFolders = async (req, res) => {
+  const { roomId, parentId } = req.query;
+
+  try {
+    // Find the team associated with the roomId
+    const team = await Team.findOne({ roomId });
+    if (!team) {
+      return res.status(404).json({ error: "Team not found for this room." });
+    }
+
+    // Find the project associated with the team
+    const project = await Project.findOne({ teamId: team._id });
+    if (!project) {
+      return res.status(404).json({ error: "No project found for this team." });
+    }
+
+    // Filter files and folders based on parentId
+    const filesAndFolders = project.files.filter(
+      (item) =>
+        item.parentId?.toString() === parentId || (!parentId && !item.parentId)
+    );
+
+    res.status(200).json(filesAndFolders);
+  } catch (error) {
+    console.error("Error fetching files and folders:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+const updateFile = async (req, res) => {
+  const { projectId, fileId, content } = req.body;
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const file = project.files.id(fileId);
+    if (!file || file.type !== "file") {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    file.content = content;
+    await project.save();
+
+    res.status(200).json({ message: "File updated successfully", file });
+  } catch (error) {
+    console.error("Error updating file:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const deleteFileOrFolder = async (req, res) => {
+  const { projectId, fileId } = req.body;
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    project.files = project.files.filter(
+      (file) => file._id.toString() !== fileId
+    );
+    await project.save();
+
+    res.status(200).json({ message: "File or folder deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting file or folder:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
 module.exports = {
   hi,
   registerUser,
@@ -534,4 +682,9 @@ module.exports = {
   addTaskToProject,
   getTasksForProject,
   validateEmailForProject,
+  saveFile,
+  createFileOrFolder,
+  getFilesAndFolders,
+  updateFile,
+  deleteFileOrFolder,
 };

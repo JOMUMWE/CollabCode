@@ -7,6 +7,7 @@ import { PlusIcon } from "@heroicons/react/outline";
 import axios from "axios";
 import "./Room.css";
 import GitPanel from "../components/GitPanel";
+import FileExplorer from "../components/FileExplorer";
 
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/mode-typescript";
@@ -176,6 +177,24 @@ export default function Room({ socket, userid, name }) {
     };
   }, [socket, openTabs]);
 
+  useEffect(() => {
+  socket.on("file saved", ({ filename, content }) => {
+    // Update the file content in the open tabs
+    setOpenTabs((prevTabs) =>
+      prevTabs.map((tab) =>
+        tab.filename === filename ? { ...tab, content } : tab
+      )
+    );
+
+    // Show a toast notification
+    toast.success(`File "${filename}" was updated by another user.`);
+  });
+
+  return () => {
+    socket.off("file saved");
+  };
+}, [socket]);
+
   const handleCloseTab = (filename) => {
     setOpenTabs((prevTabs) =>
       prevTabs.filter((tab) => tab.filename !== filename)
@@ -252,6 +271,34 @@ export default function Room({ socket, userid, name }) {
   // Toggle Git panel visibility
   const toggleGitPanel = () => {
     setShowGitPanel(!showGitPanel);
+  };
+
+  const handleSaveFile = async (filename) => {
+    if (!filename) {
+      toast.error("No file is currently open.");
+      return;
+    }
+
+    const file = openTabs.find((tab) => tab.filename === filename);
+    if (!file) {
+      toast.error("File not found.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("/saveFile", {
+        roomId,
+        filename: file.filename,
+        content: file.content,
+      });
+
+      if (response.status === 200) {
+        toast.success("File saved successfully!");
+      }
+    } catch (error) {
+      console.error("Error saving file:", error);
+      toast.error("Failed to save file.");
+    }
   };
 
   const languagesAvailable = [
@@ -563,27 +610,9 @@ export default function Room({ socket, userid, name }) {
               className="hidden"
             />
           </div>
-          <div>
-            <details className="dropdown">
-              <summary className="m-1 text-white cursor-pointer hover:underline">
-                {language ? language : "Languages"}
-              </summary>
-              <select
-                className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-                name="language"
-                id="language"
-                value={language}
-                onChange={handleLanguageChange}
-              >
-                {languagesAvailable.map((eachLanguage) => (
-                  <option key={eachLanguage} value={eachLanguage}>
-                    {eachLanguage}
-                  </option>
-                ))}
-              </select>
-            </details>
-          </div>
+          
         </div>
+          {/* <FileExplorer roomId={roomId} /> */}
         <div className="file-list mt-4">
           <h3 className="text-white text-sm ml-1 mb-2">Files:</h3>
           <ul className="text-white">
@@ -598,6 +627,14 @@ export default function Room({ socket, userid, name }) {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="flex justify-end mt-2">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => handleSaveFile(activeTab)}
+          >
+            Save File
+          </button>
         </div>
         <button
           className="btn btn-sm btn-outline btn-error self-end w-[50%] mx-auto"

@@ -28,8 +28,13 @@ const projectSchema = new mongoose.Schema({
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
   files: [
     {
-      filename: { type: String, required: true },
-      content: { type: String, required: true }, // File content
+      type: {
+        type: String, // "file" or "folder"
+        required: true,
+      },
+      name: { type: String, required: true },
+      content: { type: String }, // Only for files
+      parentId: { type: mongoose.Schema.Types.ObjectId, ref: "File" }, // For folder hierarchy
       uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       uploadedAt: { type: Date, default: Date.now },
     },

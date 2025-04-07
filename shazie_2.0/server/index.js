@@ -99,6 +99,9 @@ const io = require("socket.io")(server, {
   },
 });
 
+// Attach `io` to the app for use in controllers
+app.set("io", io);
+
 const socketID_to_Users_Map = {};
 const roomID_to_Code_Map = {};
 
@@ -158,7 +161,7 @@ io.on("connection", function (socket) {
       username,
     });
   });
-
+  
   // for other users in room to view the changes
   socket.on("update language", ({ roomId, languageUsed }) => {
     if (roomId in roomID_to_Code_Map) {

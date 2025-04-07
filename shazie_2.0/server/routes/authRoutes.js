@@ -20,6 +20,11 @@ const {
   addTaskToProject,
   getTasksForProject,
   validateEmailForProject,
+  saveFile,
+  createFileOrFolder,
+  getFilesAndFolders,
+  updateFile,
+  deleteFileOrFolder,
 } = require("../controllers/authController");
 const { submitContactForm } = require("../controllers/contact");
 
@@ -43,5 +48,10 @@ router.post("/addTask", addTaskToProject);
 router.get("/getTasks", getTasksForProject);
 router.get("/validateEmailForProject", validateEmailForProject);
 router.post("/submitContactForm", submitContactForm);
+router.post("/saveFile", saveFile);
+router.post("/createFileOrFolder", createFileOrFolder);
+router.get("/getFilesAndFolders", getFilesAndFolders);
+router.put("/updateFile", updateFile);
+router.delete("/deleteFileOrFolder", deleteFileOrFolder);
 
 module.exports = router;
