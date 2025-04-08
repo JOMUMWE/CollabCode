@@ -71,7 +71,6 @@ export default function Room({ socket, userid, name }) {
   const [showGitPanel, setShowGitPanel] = useState(false);
 
   const supportedExtensions = {
-    javascript: [".js", ".mjs", ".cjs"],
     java: [".java"],
     c_cpp: [".c", ".cpp", ".h", ".hpp"],
     python: [".py"],
@@ -99,6 +98,7 @@ export default function Room({ socket, userid, name }) {
     csharp: [".cs"],
     objectivec: [".m", ".mm"],
     plaintext: [".txt"],
+    javascript: [".js", ".mjs", ".cjs", ".jsx"], // Added .jsx
   };
 
   // Function to determine displayed users and extra count
@@ -134,32 +134,7 @@ export default function Room({ socket, userid, name }) {
     return "plain_text"; // Default to plain text if no match is found
   }
 
-  const handleFileOpen = (file) => {
-    const detectedMode = getModeFromFileExtension(file.filename); // Detect the mode
 
-    // Check if the file is already open
-    const existingTab = openTabs.find((tab) => tab.filename === file.filename);
-
-    if (existingTab) {
-      // Switch to the existing tab
-      setActiveTab(existingTab.filename);
-    } else {
-      // Open a new tab
-      const newTab = {
-        filename: file.filename,
-        content: file.content,
-        mode: detectedMode,
-      };
-      setOpenTabs((prevTabs) => [...prevTabs, newTab]);
-      setActiveTab(newTab.filename);
-
-      // Emit the event to notify other users
-      socket.emit("tab opened", {
-        roomId,
-        tab: newTab,
-      });
-    }
-  };
   useEffect(() => {
     socket.on("tab opened", ({ tab }) => {
       // Check if the tab is already open
@@ -194,18 +169,6 @@ export default function Room({ socket, userid, name }) {
     socket.off("file saved");
   };
 }, [socket]);
-
-  const handleCloseTab = (filename) => {
-    setOpenTabs((prevTabs) =>
-      prevTabs.filter((tab) => tab.filename !== filename)
-    );
-
-    // If the closed tab is the active tab, switch to another tab
-    if (activeTab === filename) {
-      const remainingTabs = openTabs.filter((tab) => tab.filename !== filename);
-      setActiveTab(remainingTabs.length > 0 ? remainingTabs[0].filename : null);
-    }
-  };
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -271,6 +234,44 @@ export default function Room({ socket, userid, name }) {
   // Toggle Git panel visibility
   const toggleGitPanel = () => {
     setShowGitPanel(!showGitPanel);
+  };
+
+  const handleFileOpen = (file) => {
+    // Check if the file is already open
+    const existingTab = openTabs.find((tab) => tab.filename === file.filename);
+
+    if (existingTab) {
+      // Switch to the existing tab
+      setActiveTab(existingTab.filename);
+    } else {
+      // Open a new tab
+      const newTab = {
+        filename: file.filename,
+        content: file.content,
+        repoName: file.repoName,
+        filePath: file.filePath,
+      };
+      setOpenTabs((prevTabs) => [...prevTabs, newTab]);
+      setActiveTab(newTab.filename);
+
+      // Emit the event to notify other users
+      socket.emit("tab opened", {
+        roomId,
+        tab: newTab,
+      });
+    }
+  };
+
+  const handleCloseTab = (filename) => {
+    setOpenTabs((prevTabs) =>
+      prevTabs.filter((tab) => tab.filename !== filename)
+    );
+
+    // If the closed tab is the active tab, switch to another tab
+    if (activeTab === filename) {
+      const remainingTabs = openTabs.filter((tab) => tab.filename !== filename);
+      setActiveTab(remainingTabs.length > 0 ? remainingTabs[0].filename : null);
+    }
   };
 
   const handleSaveFile = async (filename) => {
@@ -610,9 +611,8 @@ export default function Room({ socket, userid, name }) {
               className="hidden"
             />
           </div>
-          
         </div>
-          {/* <FileExplorer roomId={roomId} /> */}
+        <FileExplorer roomId={roomId} onFileOpen={handleFileOpen} />
         <div className="file-list mt-4">
           <h3 className="text-white text-sm ml-1 mb-2">Files:</h3>
           <ul className="text-white">
@@ -675,7 +675,7 @@ export default function Room({ socket, userid, name }) {
               key={tab.filename}
               placeholder="Happy Coding!!!"
               className="roomCodeEditor"
-              mode={tab.mode}
+              mode={getModeFromFileExtension(tab.filename)} // Dynamically set the mode
               theme="dracula"
               name={tab.filename}
               width="100%"
@@ -770,7 +770,7 @@ export default function Room({ socket, userid, name }) {
       </button>
       {/* Floating Chat Container */}
       {isChatVisible && (
-        <div className="fixed bottom-16 right-4 bg-black shadow-lg rounded-lg w-80 h-96 flex flex-col">
+        <div className="fixed bottom-16 right-4 bg-gray-800 shadow-lg rounded-lg w-80 h-96 flex flex-col">
           <div className="chat-messages overflow-y-auto flex-grow p-4">
             {messages.map((msg, index) => (
               <div

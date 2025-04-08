@@ -531,15 +531,17 @@ const saveFile = async (req, res) => {
     }
 
     // Check if the file already exists
-    const existingFile = project.files.find(
-      (file) => file.filename === filename
-    );
+    const existingFile = project.files.find((file) => file.name === filename);
     if (existingFile) {
       // Update the file content
       existingFile.content = content;
     } else {
-      // Add a new file
-      project.files.push({ filename, content });
+      // Add a new file with required fields
+      project.files.push({
+        type: "file", // Ensure the type is set
+        name: filename, // Ensure the name is set
+        content: content,
+      });
     }
 
     // Save the project

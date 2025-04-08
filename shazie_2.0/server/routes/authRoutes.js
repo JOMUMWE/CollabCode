@@ -27,6 +27,7 @@ const {
   deleteFileOrFolder,
 } = require("../controllers/authController");
 const { submitContactForm } = require("../controllers/contact");
+const { getRepositories, getRepoFiles, getFileContent, saveFileContent } = require("../controllers/gitfilesController");
 
 router.get("/", hi);
 router.post("/register", registerUser);
@@ -53,5 +54,9 @@ router.post("/createFileOrFolder", createFileOrFolder);
 router.get("/getFilesAndFolders", getFilesAndFolders);
 router.put("/updateFile", updateFile);
 router.delete("/deleteFileOrFolder", deleteFileOrFolder);
+router.get("/getRepositories", getRepositories);
+router.get("/getRepoFiles", getRepoFiles);
+router.get("/getFileContent", getFileContent);
+router.post("/saveFileContent", saveFileContent);
 
 module.exports = router;
