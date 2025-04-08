@@ -77,6 +77,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 ## Contact
 
 For questions or feedback, feel free to reach out:
-- **Email**: your-email@example.com
-- **GitHub**: [your-username](https://github.com/your-username)
-- **Website**: [your-website.com](https://your-website.com)
+- **Email**: muindijoshua032@gmail.com
+- **GitHub**: [JOMUMWE](https://github.com/JOMUMWE)
+- **Website**: [jomumwe.vercel.com](https://jomumwe.vercel.com)
