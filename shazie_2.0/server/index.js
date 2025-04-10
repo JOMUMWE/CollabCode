@@ -25,7 +25,7 @@ app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 
-✅ Use authentication routes
+// ✅ Use authentication routes
 app.use(
   express.static(path.join(__dirname, "dist"), {
     setHeaders: (res, filePath) => {
