@@ -82,4 +82,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 For questions or feedback, feel free to reach out:
 - **Email**: muindijoshua032@gmail.com
 - **GitHub**: [JOMUMWE](https://github.com/JOMUMWE)
-- **Website**: [jomumwe.vercel.com](https://jomumwe.vercel.com)
+- **CREATOR**: [jomumwe.vercel.com](https://jomumwe.vercel.com)
