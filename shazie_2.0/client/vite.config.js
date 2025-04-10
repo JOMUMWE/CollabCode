@@ -5,6 +5,9 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    outDir: "../server/dist", // Ensure the build output goes to the server/dist folder
+  },
   // server: {
   //   allowedHosts: ['5173-jomumwe-collabcode-37jzxr6jkug.ws-eu118.gitpod.io']
   // },
