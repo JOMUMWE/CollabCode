@@ -1,5 +1,7 @@
 # CollabCode
- A Real-Time Collaborative Code Editor
+ A Real-Time Collaborative Code Editor.
+
+
 [live website](jomumwe-collabcode.onrender.com)
 ## About the Project
 
