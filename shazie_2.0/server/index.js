@@ -282,6 +282,16 @@ mongoose
 
 const PORT = 8000;
 
+const path = require("path");
+
+// Serve static files from the dist folder
+app.use(express.static(path.join(__dirname, "dist")));
+
+// Fallback to index.html for SPA routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
 server.listen(PORT, function () {
   console.log(`listening on port : ${PORT}`);
 });

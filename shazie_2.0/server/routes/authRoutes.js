@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const {
-  hi,
   registerUser,
   loginUser,
   getProfile,
@@ -29,7 +28,6 @@ const {
 const { submitContactForm } = require("../controllers/contact");
 const { getRepositories, getRepoFiles, getFileContent, saveFileContent } = require("../controllers/gitfilesController");
 
-router.get("/", hi);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/profile", getProfile);
