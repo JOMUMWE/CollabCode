@@ -44,7 +44,7 @@ Follow these instructions to set up the project locally.
     npm start
     ```
 
-5. Open your browser and navigate to `http://localhost:3000`.
+5. Open your browser and navigate to `http://localhost:5173`.
 
 ## Usage
 
