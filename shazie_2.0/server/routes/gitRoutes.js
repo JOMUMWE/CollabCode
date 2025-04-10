@@ -6,7 +6,7 @@ const { simpleGit } = require('simple-git');
 const { v4: uuidv4 } = require('uuid');
 
 // Base directory for storing Git repositories
-const REPOS_DIR = path.join(__dirname, '../repos');
+const REPOS_DIR = path.join("/tmp", "repos"); // Use /tmp for writable storage
 
 // Ensure the repos directory exists
 if (!fs.existsSync(REPOS_DIR)) {
