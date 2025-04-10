@@ -284,6 +284,19 @@ const PORT = 8000;
 
 const path = require("path");
 
+app.use(
+  express.static(path.join(__dirname, "dist"), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".js")) {
+        res.setHeader("Content-Type", "application/javascript");
+      }
+      if (filePath.endsWith(".css")) {
+        res.setHeader("Content-Type", "text/css");
+      }
+    },
+  })
+);
+
 // Serve static files from the dist folder
 app.use(express.static(path.join(__dirname, "dist")));
 
