@@ -12,7 +12,7 @@ export default function Signup() {
   const [active, setActive] = useState(true)
   const [formData, setFormData] = useState({ name: '', email: '', phone : '', role: 'Team Manager', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
-  const [passwordStrength, setPasswordStrength] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState([]);
   const navigate = useNavigate();
 
 
@@ -25,23 +25,22 @@ export default function Signup() {
     }
   };
 
-  const checkPasswordStrength = (password) => {
-    const strengthCriteria = [
-      { regex: /[a-z]/, message: '✔ At least one lowercase letter' },
-      { regex: /[A-Z]/, message: '✔ At least one uppercase letter' },
-      { regex: /[0-9]/, message: '✔ At least one number' },
-      { regex: /[^A-Za-z0-9]/, message: '✔ At least one special character' },
-      { regex: /.{8,}/, message: '✔ Minimum 8 characters' },
-    ];
+const checkPasswordStrength = (password) => {
+  const strengthCriteria = [
+    { regex: /[a-z]/, message: "At least one lowercase letter" },
+    { regex: /[A-Z]/, message: "At least one uppercase letter" },
+    { regex: /[0-9]/, message: "At least one number" },
+    { regex: /[^A-Za-z0-9]/, message: "At least one special character" },
+    { regex: /.{8,}/, message: "Minimum 8 characters" },
+  ];
 
-    const matchedCriteria = strengthCriteria.filter((criteria) => criteria.regex.test(password));
-    setPasswordStrength(
-      matchedCriteria.length === strengthCriteria.length
-        ? '✅ Strong Password'
-        : `⚠ Weak Password: ${matchedCriteria.map((c) => c.message).join(', ')}`
-    );
-  };
+  const criteriaStatus = strengthCriteria.map((criteria) => ({
+    message: criteria.message,
+    met: criteria.regex.test(password),
+  }));
 
+  setPasswordStrength(criteriaStatus);
+};
   const handleSubmit = async (e) => {
     setActive(false)
     e.preventDefault();
@@ -187,15 +186,50 @@ export default function Signup() {
               autoComplete="new-password"
               className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
             />
-            <p
-              className={`mt-1 text-xs ${
-                passwordStrength.includes("✅")
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              {passwordStrength}
-            </p>
+            <ul className="mt-2 space-y-1 text-sm">
+              {passwordStrength.map((criteria, index) => (
+                <li key={index} className="flex items-center">
+                  {criteria.met ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-green-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-red-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  )}
+                  <span
+                    className={`ml-2 ${
+                      criteria.met ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {criteria.message}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
           <div>
             <label

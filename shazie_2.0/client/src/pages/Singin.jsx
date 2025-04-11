@@ -133,12 +133,12 @@ export default function Singin() {
               Signup
             </a>
           </p>
-          <div className="divider text-gray-800 divider-neutral">OR</div>
+          {/* <div className="divider text-gray-800 divider-neutral">OR</div>
           <div className="flex flex-row justify-between">
             <GithubBtn />
             
             <GoogleBtn />
-          </div>
+          </div> */}
         </div>
       </div>
     </>
