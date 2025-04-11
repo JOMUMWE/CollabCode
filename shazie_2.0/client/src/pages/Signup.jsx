@@ -14,7 +14,8 @@ export default function Signup() {
   const [error, setError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState([]);
   const navigate = useNavigate();
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -176,16 +177,67 @@ const checkPasswordStrength = (password) => {
             >
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              autoComplete="new-password"
-              className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
-            />
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"} // Toggle type
+                required
+                value={formData.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+                className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showPassword ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-.274.828-.642 1.63-1.1 2.386M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7 .274-.828.642-1.63 1.1-2.386M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3.055 3.055l17.89 17.89"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
             <ul className="mt-2 space-y-1 text-sm">
               {passwordStrength.map((criteria, index) => (
                 <li key={index} className="flex items-center">
@@ -238,16 +290,67 @@ const checkPasswordStrength = (password) => {
             >
               Confirm Password
             </label>
-            <input
-              id="confirm-password"
-              name="confirmPassword"
-              type="password"
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              autoComplete="new-password"
-              className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
-            />
+            <div className="relative">
+              <input
+                id="confirm-password"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                autoComplete="new-password"
+                className="block w-full rounded-md bg-white px-3 py-1 text-sm text-gray-900 outline outline-gray-300 focus:outline-indigo-600"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showConfirmPassword ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-.274.828-.642 1.63-1.1 2.386M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7 .274-.828.642-1.63 1.1-2.386M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3.055 3.055l17.89 17.89"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
           {error && <p className="text-red-500 text-xs">{error}</p>}
           <button
