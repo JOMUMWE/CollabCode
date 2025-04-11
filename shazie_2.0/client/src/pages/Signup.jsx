@@ -53,7 +53,7 @@ const checkPasswordStrength = (password) => {
       return;
     }
 
-    if (!passwordStrength.includes('✅ Strong Password')) {
+    if (!passwordStrength.every((criteria) => criteria.met)) {
       setActive(true)
       setError('❌ Password is too weak!');
       return;
