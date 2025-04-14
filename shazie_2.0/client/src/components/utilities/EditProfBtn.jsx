@@ -72,7 +72,7 @@ export default function EditProfBtn(props) {
         Edit
       </button>
       <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box w-[70vw]">
+        <div className="modal-box md:w-[70vw] sm:w-full">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
               Edit Personal Information

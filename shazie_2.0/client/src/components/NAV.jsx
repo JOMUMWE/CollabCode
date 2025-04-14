@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-// import { Bars3Icon, XIcon } from '@heroicons/react/outline'
 import png from "../assets/codecollab-high-resolution-logo-grayscale-transparent.png";
 import axios from "axios";
+import NotificationBell from "./NotificationBell";
 
 
 export default function NAV() {
@@ -91,7 +91,8 @@ export default function NAV() {
                   <div>
                     <Menu as="div" className="relative ml-3">
                       <div className="flex justify-between items-center">
-                        <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden hover:cursor-pointer">
+                        <NotificationBell />
+                        <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden hover:cursor-pointer ml-3">
                           <span className="absolute -inset-1.5" />
                           <span className="sr-only">Open user menu</span>
                           <img
@@ -100,7 +101,7 @@ export default function NAV() {
                             className="size-8 rounded-full object-cover "
                           />
                         </MenuButton>
-                        <p className=" text-xs text-black ml-2">{user.name}</p>
+                        <p className="hidden text-xs text-black ml-2 md:inline ">{user.name}</p>
                       </div>
                       <MenuItems
                         transition
@@ -116,7 +117,7 @@ export default function NAV() {
                         </MenuItem>
                         <MenuItem>
                           <a
-                            href="#"
+                            href="/settings"
                             className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                           >
                             Settings

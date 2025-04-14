@@ -15,6 +15,8 @@ import SocketWrapper from "./components/socketWrapper";
 import Room from "./pages/Room";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import Notifications from "./pages/Notifications";
+import Settings from "./pages/Settings"
 
 axios.defaults.baseURL = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL;
 axios.defaults.withCredentials = true;
@@ -73,6 +75,8 @@ function App() {
         />
         <Route path="/contact" element={<Contact />} />
         <Route path="/help" element={<FAQ />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/*" element={<Page404 />} />
       </Routes>
     </>

@@ -11,6 +11,7 @@ const { v4 } = require("uuid");
 const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
+const { createNotification } = require("./notificationController");
 
 const hi = (req, res) => {
   res.json("shaboozieeee");
@@ -45,6 +46,14 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
+    // Create welcome notification
+    await createNotification(
+      user._id,
+      "WELCOME",
+      `Welcome to CollabCode, ${name}! 😊 We're excited to have you on board.`,
+      user._id,
+      "User"
+    );
     return res.json(user);
   } catch (error) {
     console.log(error);
@@ -177,7 +186,18 @@ const createTeam = async (req, res) => {
 
     // Save the team to the database
     await team.save();
-
+    // After team creation, notify all team members
+    for (const memberId of team.members) {
+      if (memberId.toString() !== team.createdBy.toString()) {
+        await createNotification(
+          memberId,
+          "TEAM_ADDED",
+          `You've been added to the team "${team.teamName}" by ${creator.name}.`,
+          team._id,
+          "Team"
+        );
+      }
+    }
     res.status(201).json({ message: "Team created successfully", team });
   } catch (error) {
     console.error("Error creating team:", error);
@@ -446,6 +466,15 @@ const addTaskToProject = async (req, res) => {
       $push: { tasks: task._id },
     });
 
+    if (task.assignedTo) {
+      await createNotification(
+        task.assignedTo,
+        "TASK_ASSIGNED",
+        `You've been assigned a new task "${task.taskName}" in project "${project.projectName}".`,
+        task._id,
+        "Task"
+      );
+    }
     res.status(201).json({ message: "Task added successfully", task });
   } catch (error) {
     console.error("Error adding task:", error);

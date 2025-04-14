@@ -9,6 +9,8 @@ const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 var bodyParser = require("body-parser");
 const gitRoutes = require("./routes/gitRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const settingsRoutes = require("./routes/settingsRoutes");
 const path = require("path");
 
 const app = express();
@@ -41,6 +43,8 @@ app.use(
 
 app.use("/", require("./routes/authRoutes"));
 app.use('/git', gitRoutes);
+app.use("/notifications", notificationRoutes);
+app.use("/settings", settingsRoutes);
 
 //github login logic
 const CLIENT_SECRET = "6e01d1e3a20862e0e560aa9144b9bf500bcd0548";

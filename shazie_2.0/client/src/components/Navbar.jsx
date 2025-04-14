@@ -1,11 +1,11 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { ArrowRightIcon, BellIcon, XIcon } from '@heroicons/react/outline'
+import { XIcon } from '@heroicons/react/outline'
 import png from '../assets/codecollab-high-resolution-logo-grayscale-transparent.png';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-
+import NotificationBell from './NotificationBell';
 
 
 export default function Example() {
@@ -17,7 +17,7 @@ export default function Example() {
       });
     }
     
-  }, []);
+  });
   const [profilePic, setProfilePic] = useState(false);
   useEffect(() => {
     const fetchProfilePic = async () => {
@@ -115,7 +115,7 @@ export default function Example() {
             >
               <span className="absolute -inset-1.5" />
               <span className="sr-only">View notifications</span>
-              <BellIcon aria-hidden="true" className="size-6" />
+              <NotificationBell />
             </button>
 
             {/* Profile dropdown */}
@@ -130,7 +130,7 @@ export default function Example() {
                     className="size-8 rounded-full object-cover "
                   />
                 </MenuButton>
-                <p className=" text-xs text-white ml-2">{user.name}</p>
+                <p className="hidden md:inline text-xs text-white ml-2">{user.name}</p>
               </div>
               <MenuItems
                 transition
@@ -146,7 +146,7 @@ export default function Example() {
                 </MenuItem>
                 <MenuItem>
                   <a
-                    href="#"
+                    href="/settings"
                     className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >
                     Settings

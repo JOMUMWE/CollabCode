@@ -1,18 +1,9 @@
 "use client";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import * as motion from "motion/react-client";
-
-import { useState, useEffect } from "react";
-import { Dialog, DialogPanel } from "@headlessui/react";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-// import { Bars3Icon, XIcon } from '@heroicons/react/outline'
-import png from "../assets/codecollab-high-resolution-logo-grayscale-transparent.png";
-import axios from "axios";
+import * as motion from "motion/react-client"
 import Footer from "../components/Footer";
 import NAV from "../components/NAV";
 import Stats from "../components/Stats";
-
+import {useState, useEffect,useRef} from "react";
 
 const features = [
   {
@@ -102,6 +93,27 @@ const features = [
 ];
 
 export default function Home() {
+  const [currentStatIndex, setCurrentStatIndex] = useState(0);
+  const statsCarouselRef = useRef(null);
+
+  // Auto-rotate stats every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentStatIndex((prevIndex) => {
+        // Assuming Stats component has a way to determine total number of stats
+        // You might need to adjust this logic based on your Stats component implementation
+        const nextIndex = (prevIndex + 1) % 4; // Assuming 4 stats, adjust as needed
+        return nextIndex;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleStatChange = (index) => {
+    setCurrentStatIndex(index);
+  };
+
   return (
     <>
       <div className="bg-white">
@@ -170,7 +182,71 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <Stats />
+
+      {/* Stats Carousel */}
+      <div className="relative overflow-hidden" ref={statsCarouselRef}>
+        <div className="relative">
+          <Stats currentIndex={currentStatIndex} />
+
+          {/* Carousel Navigation Dots */}
+          <div className="flex justify-center mt-4 space-x-2">
+            {[0, 1, 2, 3].map((index) => (
+              <button
+                key={index}
+                onClick={() => handleStatChange(index)}
+                className={`h-3 w-3 rounded-full transition-colors duration-300 ${
+                  currentStatIndex === index ? "bg-indigo-600" : "bg-gray-300"
+                }`}
+                aria-label={`Go to stat ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Carousel Navigation Arrows */}
+          <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
+            <button
+              onClick={() => setCurrentStatIndex((prev) => (prev - 1 + 4) % 4)}
+              className="p-2 rounded-full bg-white/80 shadow-md pointer-events-auto hover:bg-white"
+              aria-label="Previous stat"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5 text-gray-700"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={() => setCurrentStatIndex((prev) => (prev + 1) % 4)}
+              className="p-2 rounded-full bg-white/80 shadow-md pointer-events-auto hover:bg-white"
+              aria-label="Next stat"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5 text-gray-700"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
       <div id="features" className="bg-white py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
