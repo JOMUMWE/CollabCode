@@ -17,7 +17,7 @@ export default function Footer() {
             <a href="#" className="hover:underline">
               Privacy
             </a>
-            <a href="/settings" className="hover:underline">
+            <a href="/sett" className="hover:underline">
               Settings
             </a>
           </div>

@@ -76,7 +76,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/help" element={<FAQ />} />
         <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/sett" element={<Settings />} />
         <Route path="/*" element={<Page404 />} />
       </Routes>
     </>

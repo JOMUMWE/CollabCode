@@ -146,7 +146,7 @@ export default function Example() {
                 </MenuItem>
                 <MenuItem>
                   <a
-                    href="/settings"
+                    href="/sett"
                     className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >
                     Settings
