@@ -25,7 +25,7 @@ app.use(
 app.use(bodyParser.json());
 app.use(express.json({ limit: "100mb" }));
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: "100mb" }));
 
 //✅ Use authentication routes
 app.use(
@@ -45,6 +45,8 @@ app.use("/", require("./routes/authRoutes"));
 app.use('/git', gitRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/settings", settingsRoutes);
+
+
 
 //github login logic
 const CLIENT_SECRET = "6e01d1e3a20862e0e560aa9144b9bf500bcd0548";
@@ -291,6 +293,27 @@ io.on("connection", function (socket) {
     console.log("A user disconnected");
   });
 });
+
+// Create a centralized error handler middleware
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack);
+  
+  // Determine status code
+  const statusCode = err.statusCode || 500;
+  
+  // Format error response
+  const errorResponse = {
+    error: {
+      message: err.message || 'Internal Server Error',
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    },
+  };
+  
+  res.status(statusCode).json(errorResponse);
+};
+
+// Add to server/index.js
+app.use(errorHandler);
 
 // ✅ Connect to MongoDB
 mongoose

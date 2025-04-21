@@ -28,7 +28,10 @@ export default function Teams(props) {
                   className="list-row"
                 >
                   <div>
-                    <Avatar length={teamItem.members.length} />
+                    <Avatar
+                      members={teamItem.members}
+                      length={teamItem.members.length}
+                    />
                   </div>
                   <div>
                     <div>{teamItem.teamName}</div>

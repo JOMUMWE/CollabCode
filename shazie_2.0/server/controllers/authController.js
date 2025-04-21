@@ -12,6 +12,7 @@ const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
 const { createNotification } = require("./notificationController");
+const path = require("path");
 
 const hi = (req, res) => {
   res.json("shaboozieeee");
@@ -250,6 +251,12 @@ const validate_email = async (req, res) => {
 const updateProfilePic = async (req, res) => {
   const { image, id } = req.body;
 
+  // Optional: Add validation for image size if needed
+  // const base64Size = Buffer.from(image.split(',')[1], 'base64').length;
+  // if (base64Size > 10 * 1024 * 1024) { // 10MB
+  //   return res.status(400).json({ error: "Image size exceeds the 10MB limit" });
+  // }
+
   try {
     await User.updateOne(
       { _id: id },
@@ -261,10 +268,12 @@ const updateProfilePic = async (req, res) => {
     );
     return res.json({ status: "ok", data: "updated" });
   } catch (error) {
-    return res.json({ error: error });
-  }
-};
 
+    console.error("Error updating profile picture:", error);
+    return res.status(500).json({ error: "Failed to update profile picture" });
+  }
+
+};
 // Endpoint to get profile picture
 const getProfilePic = async (req, res) => {
   const { id } = req.params;
@@ -334,6 +343,16 @@ const getProjects = async (req, res) => {
   const { userId } = req.query; // Pass the user ID as a query parameter
 
   try {
+    // Check if userId is provided and valid
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // Validate that userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user ID format" });
+    }
+
     // Find teams where the user is a member
     const teams = await Team.find({ members: userId });
 
@@ -356,6 +375,7 @@ const getProjects = async (req, res) => {
   }
 };
 
+
 const addFileToProject = async (req, res) => {
   const { roomId, filename, content, uploadedBy } = req.body;
 
@@ -374,9 +394,10 @@ const addFileToProject = async (req, res) => {
 
     // Add the file to the project's files array
     const newFile = {
-      filename,
+      name: filename, // Changed from filename to name
       content,
       uploadedBy,
+      type: getFileType(filename), // Add a function to determine file type based on extension
     };
     project.files.push(newFile);
     await project.save();
@@ -389,6 +410,35 @@ const addFileToProject = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// Helper function to determine file type based on extension
+const getFileType = (filename) => {
+  const extension = path.extname(filename).toLowerCase();
+
+  // Map common extensions to file types
+  const typeMap = {
+    ".js": "javascript",
+    ".jsx": "javascript",
+    ".ts": "typescript",
+    ".tsx": "typescript",
+    ".html": "html",
+    ".css": "css",
+    ".scss": "scss",
+    ".json": "json",
+    ".md": "markdown",
+    ".py": "python",
+    ".java": "java",
+    ".c": "c",
+    ".cpp": "cpp",
+    ".php": "php",
+    ".rb": "ruby",
+    ".go": "go",
+    ".txt": "text",
+  };
+
+  return typeMap[extension] || "text"; // Default to 'text' if extension is not recognized
+};
+
 
 const getFilesForRoom = async (req, res) => {
   const { roomId } = req.query;
@@ -406,6 +456,9 @@ const getFilesForRoom = async (req, res) => {
       return res.status(404).json({ error: "No project found for this team" });
     }
 
+    // Add debugging to see what's in the files array
+    console.log("Files in project:", project.files);
+
     // Return the files associated with the project
     res.status(200).json({ files: project.files });
   } catch (error) {
@@ -413,7 +466,6 @@ const getFilesForRoom = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 const addTaskToProject = async (req, res) => {
   const { projectId, taskName, status, dueDate, createdBy, assignedTo } =
     req.body;

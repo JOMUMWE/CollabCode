@@ -113,16 +113,35 @@ export default function Room({ socket, userid, name }) {
 
   const fetchFiles = async () => {
     try {
+      console.log("Fetching files for room:", roomId);
       const response = await axios.get(`/getFilesForRoom?roomId=${roomId}`);
-      setUploadedFiles(response.data.files);
+      console.log("Files response:", response.data);
+
+      if (
+        response.data &&
+        response.data.files &&
+        response.data.files.length > 0
+      ) {
+        // Transform the files to match the expected structure
+        const transformedFiles = response.data.files.map((file) => ({
+          filename: file.name,
+          content: file.content,
+          type: file.type || getModeFromFileExtension(file.name),
+        }));
+        console.log("Transformed files:", transformedFiles);
+        setUploadedFiles(transformedFiles);
+      } else {
+        console.log("No files found in response");
+        setUploadedFiles([]);
+      }
     } catch (error) {
       console.error("Error fetching files:", error);
-      toast.error("Failed to fetch files.");
+      toast.error(
+        "Failed to fetch files: " +
+          (error.response?.data?.error || error.message)
+      );
     }
   };
-  useEffect(() => {
-    fetchFiles();
-  }, [roomId]);
 
   function getModeFromFileExtension(filename) {
     const fileExtension = filename.split(".").pop();
@@ -170,56 +189,72 @@ export default function Room({ socket, userid, name }) {
   };
 }, [socket]);
 
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+ const handleFileUpload = async (event) => {
+   const file = event.target.files[0];
+   if (!file) return;
 
-    const fileExtension = file.name.split(".").pop();
-    const isSupported = Object.keys(supportedExtensions).some((lang) =>
-      supportedExtensions[lang].includes(`.${fileExtension}`)
-    );
+   const fileExtension = file.name.split(".").pop();
+   const isSupported = Object.keys(supportedExtensions).some((lang) =>
+     supportedExtensions[lang].includes(`.${fileExtension}`)
+   );
 
-    if (!isSupported) {
-      toast.error("Unsupported file format. Please upload a supported file.");
-      return;
-    }
+   if (!isSupported) {
+     toast.error("Unsupported file format. Please upload a supported file.");
+     return;
+   }
 
-    try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const fileContent = e.target.result;
+   try {
+     const reader = new FileReader();
+     reader.onload = async (e) => {
+       const fileContent = e.target.result;
 
-        // Automatically detect the mode based on the file extension
-        const detectedMode = getModeFromFileExtension(file.name);
-        setLanguage(detectedMode); // Update the editor's mode
+       // Automatically detect the mode based on the file extension
+       const detectedMode = getModeFromFileExtension(file.name);
+       setLanguage(detectedMode); // Update the editor's mode
 
-        try {
-          // Send the file to the backend
-          const uploadResponse = await axios.post("/uploadFile", {
-            roomId,
-            filename: file.name,
-            content: fileContent,
-            uploadedBy: userid, // Assuming the user's ID is available in the socket
-          });
+       try {
+         // Send the file to the backend
+         const uploadResponse = await axios.post("/uploadFile", {
+           roomId,
+           filename: file.name,
+           content: fileContent,
+           uploadedBy: userid, // Assuming the user's ID is available in the socket
+         });
 
-          // Set the file content locally
-          setUploadedFileContent(fileContent);
-          setFetchedCode(fileContent);
+         if (uploadResponse.data && uploadResponse.data.file) {
+           // Add the new file to the uploadedFiles state
+           setUploadedFiles((prev) => [
+             ...prev,
+             {
+               filename: file.name,
+               content: fileContent,
+               type: detectedMode,
+             },
+           ]);
 
-          // Emit the updated code to the server
-          socket.emit("update code", { roomId, code: fileContent });
-          toast.success(uploadResponse.message);
-        } catch (error) {
-          console.error("Error uploading file:", error);
-          toast.error("Failed to upload file.");
-        }
-      };
-      reader.readAsText(file);
-    } catch (error) {
-      console.error("Error checking team projects:", error);
-      toast.error("Failed to check team projects.");
-    }
-  };
+           // Open the file in a new tab
+           handleFileOpen({
+             filename: file.name,
+             content: fileContent,
+             type: detectedMode,
+           });
+
+           toast.success("File uploaded successfully!");
+         } else {
+           toast.success(uploadResponse.data.message || "File uploaded");
+         }
+       } catch (error) {
+         console.error("Error uploading file:", error);
+         toast.error("Failed to upload file.");
+       }
+     };
+     reader.readAsText(file);
+   } catch (error) {
+     console.error("Error reading file:", error);
+     toast.error("Failed to read file.");
+   }
+ };
+
 
   const toggleChat = () => {
     setIsChatVisible((prev) => {
@@ -236,31 +271,38 @@ export default function Room({ socket, userid, name }) {
     setShowGitPanel(!showGitPanel);
   };
 
-  const handleFileOpen = (file) => {
-    // Check if the file is already open
-    const existingTab = openTabs.find((tab) => tab.filename === file.filename);
+const handleFileOpen = (file) => {
+  // Check if the file is already open
+  const existingTab = openTabs.find((tab) => tab.filename === file.filename);
 
-    if (existingTab) {
-      // Switch to the existing tab
-      setActiveTab(existingTab.filename);
-    } else {
-      // Open a new tab
-      const newTab = {
-        filename: file.filename,
-        content: file.content,
-        repoName: file.repoName,
-        filePath: file.filePath,
-      };
-      setOpenTabs((prevTabs) => [...prevTabs, newTab]);
-      setActiveTab(newTab.filename);
+  if (existingTab) {
+    // Switch to the existing tab
+    setActiveTab(existingTab.filename);
+  } else {
+    // Create a new tab with the file content
+    const newTab = {
+      filename: file.filename,
+      content: file.content || "", // Ensure content is never undefined
+      type: file.type,
+    };
 
-      // Emit the event to notify other users
-      socket.emit("tab opened", {
-        roomId,
-        tab: newTab,
-      });
-    }
-  };
+    // Add the new tab and set it as active
+    setOpenTabs((prevTabs) => [...prevTabs, newTab]);
+    setActiveTab(newTab.filename);
+
+    // Set the language based on the file extension
+    const detectedMode = getModeFromFileExtension(file.filename);
+    setLanguage(detectedMode);
+
+    // Emit the event to notify other users
+    socket.emit("tab opened", {
+      roomId,
+      tab: newTab,
+    });
+  }
+};
+
+
 
   const handleCloseTab = (filename) => {
     setOpenTabs((prevTabs) =>
@@ -616,16 +658,20 @@ export default function Room({ socket, userid, name }) {
         <div className="file-list mt-4">
           <h3 className="text-white text-sm ml-1 mb-2">Files:</h3>
           <ul className="text-white">
-            {uploadedFiles.map((file, index) => (
-              <li key={index} className="mb-1 ml-3">
-                <button
-                  className="text-gray-300 hover:underline text-xs m-0 p-0"
-                  onClick={() => handleFileOpen(file)}
-                >
-                  {file.filename}
-                </button>
-              </li>
-            ))}
+            {uploadedFiles && uploadedFiles.length > 0 ? (
+              uploadedFiles.map((file, index) => (
+                <li key={index} className="mb-1 ml-3">
+                  <button
+                    className="text-gray-300 hover:underline text-xs m-0 p-0"
+                    onClick={() => handleFileOpen(file)}
+                  >
+                    {file.filename || file.name}
+                  </button>
+                </li>
+              ))
+            ) : (
+              <li className="text-gray-400 text-xs ml-3">No files available</li>
+            )}
           </ul>
         </div>
         <div className="flex justify-end mt-2">
