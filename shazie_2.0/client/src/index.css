@@ -5,9 +5,9 @@
 
 
 body {
-    background-color: white;
-    min-height: 100vh;
-   font-family: "Poppins", sans-serif;
+  background-color: white;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
 }
 
 .audio {
@@ -51,4 +51,54 @@ body {
   color: red;
   cursor: pointer;
   display: inline;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-animate {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+/* Add smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.025em;
+}
+
+/* Add text shadow for depth */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhance button hover effects */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
 }

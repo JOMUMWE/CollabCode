@@ -10,73 +10,76 @@ export const useNotifications = () => {
 
 
 export const NotificationProvider = ({ children }) => {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState({ data: [] });
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(false);
 
   useEffect(() => {
-      if (!user) {
-        axios.get("/profile").then(({ data }) => {
-          setUser(data);
-        });
-      }
-      
-    },[user]);
+    if (!user) {
+      axios.get("/profile").then(({ data }) => {
+        setUser(data);
+      });
+    }
+  }, [user]);
 
-    
-    const fetchNotifications = useCallback(async () => {
-      
-      try {
-        setLoading(true);
-        console.log("Fetching notifications for user:", user.id);
-        const response = await axios.get(`/notifications/user/${user.id}`);
-        setNotifications(response);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-        setLoading(false);
-      }
-    },[user]);
-    
-    
-    const fetchUnreadCount = useCallback(async () => {
-      if (!user || !user.id) return;
-      
-      try {
-        const response = await axios.get(`/notifications/unread-count/${user.id}`);
-        setUnreadCount(response.data.count);
-      } catch (error) {
-        console.error("Error fetching unread count:", error);
-      }
-    },[user])
-    
-    useEffect(() => {
-      if (user && user.id) {
-        fetchNotifications();
+  // Fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      setLoading(true);
+      const response = await axios.get(`/notifications/user/${user.id}`);
+      // Store response with data property
+      setNotifications({ data: response.data });
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      setLoading(false);
+    }
+  }, [user]);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user || !user.id) return;
+
+    try {
+      const response = await axios.get(
+        `/notifications/unread-count/${user.id}`
+      );
+      setUnreadCount(response.data.count);
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && user.id) {
+      fetchNotifications();
+      fetchUnreadCount();
+
+      // Set up polling for new notifications
+      const interval = setInterval(() => {
         fetchUnreadCount();
-        
-        // Set up polling for new notifications
-        const interval = setInterval(() => {
-          fetchUnreadCount();
-        }, 30000); // Check every 30 seconds
-        
-        return () => clearInterval(interval);
-      }
-    },[user,fetchNotifications,fetchUnreadCount]);
+      }, 30000); // Check every 30 seconds
 
-    const markAsRead = async (notificationId) => {
-      try {
-        await axios.put(`/notifications/read/${notificationId}`);
-        
-        // Update local state
-        setNotifications(prevNotifications => 
-        prevNotifications.data.map(notification => 
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchNotifications, fetchUnreadCount]);
+
+   // Mark single notification as read
+  const markAsRead = async (notificationId) => {
+    try {
+      await axios.put(`/notifications/read/${notificationId}`);
+      
+      // Update local state maintaining the data structure
+      setNotifications(prevNotifications => ({
+        ...prevNotifications,
+        data: prevNotifications.data.map(notification => 
           notification._id === notificationId 
-            ? { ...notification, isRead: true } 
+            ? { ...notification, isRead: true }
             : notification
         )
-      );
+      }));
       
       fetchUnreadCount();
     } catch (error) {
@@ -84,17 +87,22 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  // Mark all as read
   const markAllAsRead = async () => {
-    if (!user || !user.id) return;
-    
+    if (!user?.id) return;
+
     try {
       await axios.put(`/notifications/read-all/${user.id}`);
-      
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.data.map(notification => ({ ...notification, isRead: true }))
-      );
-      
+
+      // Update local state ensuring we maintain the data structure
+      setNotifications((prevNotifications) => ({
+        ...prevNotifications,
+        data: prevNotifications.data.map((notification) => ({
+          ...notification,
+          isRead: true,
+        })),
+      }));
+
       setUnreadCount(0);
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
@@ -107,7 +115,7 @@ export const NotificationProvider = ({ children }) => {
     loading: loading,
     fetchNotifications,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
   };
 
   return (

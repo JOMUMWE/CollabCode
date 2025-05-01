@@ -89,12 +89,12 @@ const fetchTasks = async (projectId) => {
                     : "Ongoing"}
                 </p>
                 {/* Dropdown for tasks */}
-                <div className="flex flex-row-reverse items-center justify-between mt-4">
-                  <details className="dropdown dropdown-right mt-4">
+                <div className="flex flex-row items-center justify-between mt-4">
+                  <details className="dropdown dropdown-bottom mt-4">
                     <summary className="btn btn-sm btn-primary">
                       View Tasks
                     </summary>
-                    <ul className="dropdown-content menu bg-base-100 rounded-box z-[1] w-[70vh] p-2 shadow">
+                    <ul className="dropdown-content menu bg-base-100 rounded-box z-[1] w-[70vw] p-2 shadow">
                       {project.tasks && project.tasks.length > 0 ? (
                         project.tasks.map((task) => (
                           <li key={task._id} className="p-2">

@@ -124,7 +124,7 @@ export default function Notifications() {
                   <select
                     id="filter"
                     name="filter"
-                    className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base text-black focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
                   >

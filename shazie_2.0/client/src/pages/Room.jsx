@@ -111,37 +111,40 @@ export default function Room({ socket, userid, name }) {
 
   const { displayedUsers, extraCount } = getDisplayedUsers();
 
-  const fetchFiles = async () => {
-    try {
-      console.log("Fetching files for room:", roomId);
-      const response = await axios.get(`/getFilesForRoom?roomId=${roomId}`);
-      console.log("Files response:", response.data);
+ const fetchFiles = async () => {
+   try {
+     console.log("Fetching files for room:", roomId);
+     const response = await axios.get(`/getFilesForRoom?roomId=${roomId}`);
+     console.log("Files response:", response.data);
 
-      if (
-        response.data &&
-        response.data.files &&
-        response.data.files.length > 0
-      ) {
-        // Transform the files to match the expected structure
-        const transformedFiles = response.data.files.map((file) => ({
-          filename: file.name,
-          content: file.content,
-          type: file.type || getModeFromFileExtension(file.name),
-        }));
-        console.log("Transformed files:", transformedFiles);
-        setUploadedFiles(transformedFiles);
-      } else {
-        console.log("No files found in response");
-        setUploadedFiles([]);
-      }
-    } catch (error) {
-      console.error("Error fetching files:", error);
-      toast.error(
-        "Failed to fetch files: " +
-          (error.response?.data?.error || error.message)
-      );
-    }
-  };
+     if (
+       response.data &&
+       response.data.files &&
+       response.data.files.length > 0
+     ) {
+       // Transform the files to match the expected structure
+       const transformedFiles = response.data.files.map((file) => ({
+         filename: file.name,
+         content: file.content,
+         type: file.type || getModeFromFileExtension(file.name),
+       }));
+
+       // Set the uploaded files state
+       setUploadedFiles(transformedFiles);
+
+       // Open each file in a tab
+       transformedFiles.forEach((file) => {
+         handleFileOpen(file);
+       });
+     }
+   } catch (error) {
+     console.error("Error fetching files:", error);
+     toast.error(
+       "Failed to fetch files: " +
+         (error.response?.data?.error || error.message)
+     );
+   }
+ };
 
   function getModeFromFileExtension(filename) {
     const fileExtension = filename.split(".").pop();
@@ -499,6 +502,12 @@ const handleFileOpen = (file) => {
         updateAudioLevel();
       });
   }, []);
+
+  // Add this near your other useEffect hooks
+useEffect(() => {
+  // Fetch files when component mounts
+  fetchFiles();
+}, [roomId]); // Depend on roomId
 
   useEffect(() => {
     navigator.mediaDevices

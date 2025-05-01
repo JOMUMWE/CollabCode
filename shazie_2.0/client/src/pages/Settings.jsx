@@ -20,7 +20,8 @@ import DangerZone from '../components/settings/DangerZone';
 import SecurityIcon from '@mui/icons-material/Security';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import WarningIcon from '@mui/icons-material/Warning';
-import NAV from '../components/NAV';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 // Custom styled components
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -199,106 +200,115 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <LoadingContainer>
-        <CircularProgress size={60} thickness={4} />
-      </LoadingContainer>
+      <>
+        <Navbar />
+        <LoadingContainer>
+          <CircularProgress size={60} thickness={4} />
+        </LoadingContainer>
+        <Footer />
+      </>
     );
   }
 
   if (error) {
     return (
-      <StyledContainer maxWidth="md">
-        <Alert 
-          severity="error" 
-          sx={{ 
-            borderRadius: 2, 
-            fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-            fontSize: '1rem'
-          }}
-        >
-          {error}
-        </Alert>
-      </StyledContainer>
+      <>
+        <Navbar />
+        <StyledContainer maxWidth="md">
+          <Alert 
+            severity="error" 
+            sx={{ 
+              borderRadius: 2, 
+              fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+              fontSize: '1rem'
+            }}
+          >
+            {error}
+          </Alert>
+        </StyledContainer>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <StyledContainer maxWidth="md">
-      <PageTitle variant="h4" component="h1">
-        Account Settings
-      </PageTitle>
-      <PageSubtitle variant="body1">
-        Manage your account settings and preferences
-      </PageSubtitle>
+    <>
+      <Navbar />
+      <StyledContainer maxWidth="md">
+        <PageTitle variant="h4" component="h1">
+          Account Settings
+        </PageTitle>
+        <PageSubtitle variant="body1">
+          Manage your account settings and preferences
+        </PageSubtitle>
 
-      <StyledPaper elevation={0}>
-        <StyledTabs
-          value={activeTab}
-          onChange={handleTabChange}
-          variant="scrollable"
-          scrollButtons="auto"
-          aria-label="settings tabs"
-        >
-          <StyledTab 
-            icon={<SecurityIcon />} 
-            label="Security" 
-            id="settings-tab-0"
-            aria-controls="settings-tabpanel-0"
-          />
-          <StyledTab 
-            icon={<NotificationsIcon />} 
-            label="Notifications" 
-            id="settings-tab-1"
-            aria-controls="settings-tabpanel-1"
-          />
-          <StyledTab 
-            icon={<WarningIcon />} 
-            label="Danger Zone" 
-            id="settings-tab-2"
-            aria-controls="settings-tabpanel-2"
-          />
-        </StyledTabs>
-
-        <TabContent
-          role="tabpanel"
-          hidden={activeTab !== 0}
-          id="settings-tabpanel-0"
-          aria-labelledby="settings-tab-0"
-        >
-          {activeTab === 0 && (
-            <SecuritySettings onUpdate={handlePasswordUpdate} />
-          )}
-        </TabContent>
-
-        <TabContent
-          role="tabpanel"
-          hidden={activeTab !== 1}
-          id="settings-tabpanel-1"
-          aria-labelledby="settings-tab-1"
-        >
-          {activeTab === 1 && (
-            <NotificationSettings
-              preferences={userData?.preferences || {}}
-              onUpdate={handleNotificationUpdate}
+        <StyledPaper elevation={0}>
+          <StyledTabs
+            value={activeTab}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            aria-label="settings tabs"
+          >
+            <StyledTab 
+              icon={<SecurityIcon />} 
+              label="Security" 
+              id="settings-tab-0"
+              aria-controls="settings-tabpanel-0"
             />
-          )}
-        </TabContent>
+            <StyledTab 
+              icon={<NotificationsIcon />} 
+              label="Notifications" 
+              id="settings-tab-1"
+              aria-controls="settings-tabpanel-1"
+            />
+            <StyledTab 
+              icon={<WarningIcon />} 
+              label="Danger Zone" 
+              id="settings-tab-2"
+              aria-controls="settings-tabpanel-2"
+            />
+          </StyledTabs>
 
-        <TabContent
-          role="tabpanel"
-          hidden={activeTab !== 2}
-          id="settings-tabpanel-2"
-          aria-labelledby="settings-tab-2"
-        >
-          {activeTab === 2 && (
-            <DangerZone onDeleteAccount={handleDeleteAccount} />
-          )}
-        </TabContent>
+          <TabContent
+            role="tabpanel"
+            hidden={activeTab !== 0}
+            id="settings-tabpanel-0"
+            aria-labelledby="settings-tab-0"
+          >
+            {activeTab === 0 && (
+              <SecuritySettings onUpdate={handlePasswordUpdate} />
+            )}
+          </TabContent>
 
-        
-      </StyledPaper>
-      <a href='/' className='btn btn-sm btn-primary mt-2'>Back home</a>
-    </StyledContainer>
+          <TabContent
+            role="tabpanel"
+            hidden={activeTab !== 1}
+            id="settings-tabpanel-1"
+            aria-labelledby="settings-tab-1"
+          >
+            {activeTab === 1 && (
+              <NotificationSettings
+                preferences={userData?.preferences || {}}
+                onUpdate={handleNotificationUpdate}
+              />
+            )}
+          </TabContent>
+
+          <TabContent
+            role="tabpanel"
+            hidden={activeTab !== 2}
+            id="settings-tabpanel-2"
+            aria-labelledby="settings-tab-2"
+          >
+            {activeTab === 2 && (
+              <DangerZone onDeleteAccount={handleDeleteAccount} />
+            )}
+          </TabContent>
+        </StyledPaper>
+      </StyledContainer>
+      <Footer />
+    </>
   );
 };
 

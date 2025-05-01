@@ -116,7 +116,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="bg-white">
+      <div className="bg-gradient-to-b from-white to-indigo-50/30">
         <NAV />
 
         <div className="relative isolate px-6 lg:px-8">
@@ -129,43 +129,66 @@ export default function Home() {
                 clipPath:
                   "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
               }}
-              className="relative left-[calc(50%-11rem)] aspect-1155/678 w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+              className="relative left-[calc(50%-11rem)] aspect-1155/678 w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem] animate-pulse"
             />
           </div>
           <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
-            {/* <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-            <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-              Announcing our next round of funding.{' '}
-              <a href="#" className="font-semibold text-indigo-600">
-                <span aria-hidden="true" className="absolute inset-0" />
-                Read more <span aria-hidden="true">&rarr;</span>
-              </a>
-            </div>
-          </div> */}
             <div className="text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mb-8 flex justify-center"
+              >
+                <span className="relative inline-flex overflow-hidden rounded-full p-[1px]">
+                  <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-gradient-to-r from-[#ff80b5] via-[#9089fc] to-[#ff80b5]" />
+                  <div className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950/90 px-3 py-1 text-sm font-medium text-gray-50 backdrop-blur-3xl">
+                    <span className="animate-pulse">✨ Welcome to the future of coding ✨</span>
+                  </div>
+                </span>
+              </motion.div>
+
               <motion.h1
-                initial={{ opacity: 0, scale: 0 }}
+                initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{
                   duration: 0.8,
-                  scale: { type: "spring", visualDuration: 0.5, bounce: 0.5 },
+                  delay: 0.3,
+                  ease: [0, 0.71, 0.2, 1.01]
                 }}
-                className="text-6xl font-bold tracking-tight text-balance text-gray-900 sm:text-7xl"
+                className="text-6xl font-extrabold tracking-tight text-balance text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 sm:text-7xl"
               >
-                Collaborate on Code in Real-Time
+                Collaborate on Code
+                <br />
+                <span className="text-gray-900">in Real-Time</span>
               </motion.h1>
-              <motion.p className="mt-8 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
-                Work together seamlessly on code with CollabCode. Experience
-                real-time collaboration like never before.
+
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="mt-8 text-lg font-medium text-pretty text-gray-600 sm:text-xl/8 leading-relaxed"
+              >
+                Work together seamlessly on code with CollabCode.
+                <br />
+                Experience real-time collaboration like never before.
               </motion.p>
-              <div className="mt-10 flex items-center justify-center gap-x-6">
+
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="mt-10 flex items-center justify-center gap-x-6"
+              >
                 <a
                   href="/signup"
-                  className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg bg-indigo-600 px-6 py-3 font-bold text-white transition duration-300 ease-out hover:scale-105"
                 >
-                  Get started
+                  <span className="absolute inset-0 h-full w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-700"></span>
+                  <span className="ease absolute bottom-0 right-0 mb-32 mr-4 block h-64 w-64 origin-bottom-left translate-x-24 rotate-45 transform rounded-full bg-pink-500 opacity-30 transition duration-500 group-hover:rotate-90"></span>
+                  <span className="relative">Get started</span>
                 </a>
-              </div>
+              </motion.div>
             </div>
           </div>
           <div
@@ -184,18 +207,22 @@ export default function Home() {
       </div>
 
       {/* Stats Carousel */}
-      <div className="relative overflow-hidden" ref={statsCarouselRef}>
+      <div className="relative overflow-hidden bg-gradient-to-b from-indigo-50/30 to-white" ref={statsCarouselRef}>
         <div className="relative">
           <Stats currentIndex={currentStatIndex} />
 
           {/* Carousel Navigation Dots */}
-          <div className="flex justify-center mt-4 space-x-2">
+          <div className="flex justify-center mt-4 space-x-3">
             {[0, 1, 2, 3].map((index) => (
-              <button
+              <motion.button
                 key={index}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => handleStatChange(index)}
-                className={`h-3 w-3 rounded-full transition-colors duration-300 ${
-                  currentStatIndex === index ? "bg-indigo-600" : "bg-gray-300"
+                className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                  currentStatIndex === index 
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 scale-125" 
+                    : "bg-gray-300 hover:bg-gray-400"
                 }`}
                 aria-label={`Go to stat ${index + 1}`}
               />
@@ -204,9 +231,11 @@ export default function Home() {
 
           {/* Carousel Navigation Arrows */}
           <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => setCurrentStatIndex((prev) => (prev - 1 + 4) % 4)}
-              className="p-2 rounded-full bg-white/80 shadow-md pointer-events-auto hover:bg-white"
+              className="p-3 rounded-full bg-white/90 shadow-lg pointer-events-auto hover:bg-white transition-all duration-300"
               aria-label="Previous stat"
             >
               <svg
@@ -223,10 +252,12 @@ export default function Home() {
                   d="M15.75 19.5L8.25 12l7.5-7.5"
                 />
               </svg>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => setCurrentStatIndex((prev) => (prev + 1) % 4)}
-              className="p-2 rounded-full bg-white/80 shadow-md pointer-events-auto hover:bg-white"
+              className="p-3 rounded-full bg-white/90 shadow-lg pointer-events-auto hover:bg-white transition-all duration-300"
               aria-label="Next stat"
             >
               <svg
@@ -243,26 +274,39 @@ export default function Home() {
                   d="M8.25 4.5l7.5 7.5-7.5 7.5"
                 />
               </svg>
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
-      <div id="features" className="bg-white py-24 sm:py-32">
+      <div id="features" className="bg-gradient-to-b from-white to-indigo-50/30 py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="mx-auto max-w-2xl lg:text-center"
+          >
             <h2 className="text-base/7 font-semibold text-indigo-600">
               Why Choose CollabCode?
             </h2>
-            <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl lg:text-balance">
+            <p className="mt-2 text-4xl font-bold tracking-tight text-pretty text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 sm:text-5xl lg:text-balance">
               Features Designed for Seamless Coding Collaboration
             </p>
-          </div>
+          </motion.div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-              {features.map((feature) => (
-                <div key={feature.name} className="relative pl-16">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.name}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="relative pl-16 hover:transform hover:scale-105 transition-all duration-300"
+                >
                   <dt className="text-base/7 font-semibold text-gray-900">
-                    <div className="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-indigo-600">
+                    <div className="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
                       {feature.icon}
                     </div>
                     {feature.name}
@@ -270,7 +314,7 @@ export default function Home() {
                   <dd className="mt-2 text-base/7 text-gray-600">
                     {feature.description}
                   </dd>
-                </div>
+                </motion.div>
               ))}
             </dl>
           </div>

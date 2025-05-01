@@ -10,29 +10,38 @@ export default function EditProfBtn(props) {
   const email = props.user.email;
   const phone = props.user.phone;
   const role = props.user.role;
-  const [formData, setFormData] = useState({
-    name: name,
-    email: email,
-    phone: phone,
-    role: role,
-  });
+  
+  // Initialize formData as an empty object to track only changed fields
+  const [formData, setFormData] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // Only update if value is different from current value
+    if (value !== props.user[name] && value.trim() !== '') {
+      setFormData({ ...formData, [name]: value });
+    } else {
+      // Remove field if it's set back to original value or empty
+      const newFormData = { ...formData };
+      delete newFormData[name];
+      setFormData(newFormData);
+    }
   };
+
   const handleSubmit = async (e) => {
-    
     e.preventDefault();
-    const { name, email, phone, role} = formData;
+    
+    // If no fields were changed, show a message and return
+    if (Object.keys(formData).length === 0) {
+      toast.error("No changes were made");
+      return;
+    }
 
     try {
       const { data } = await axios.post("/updateUser", {
-        id : props.user.id,
-        name: name,
-        email: email,
-        phone : phone,
-        role : role,
+        id: props.user.id,
+        ...formData // Only send changed fields
       });
+      
       if (data.error) {
         toast.error(data.error);
       } else {
@@ -45,6 +54,7 @@ export default function EditProfBtn(props) {
       }
     } catch (error) {
       console.log(error);
+      toast.error("Failed to update profile");
     }
   };
 
@@ -95,10 +105,9 @@ export default function EditProfBtn(props) {
                     <input
                       id="name"
                       name="name"
-                      placeholder="your name"
+                      placeholder={name}
                       className="input input-bordered w-full max-w-xs"
                       type="text"
-                      value={formData.name}
                       onChange={handleChange}
                     />
                   </div>
@@ -108,10 +117,9 @@ export default function EditProfBtn(props) {
                     <input
                       id="email"
                       name="email"
-                      placeholder="your email"
+                      placeholder={email}
                       className="input input-bordered w-full max-w-xs"
                       type="text"
-                      value={formData.email}
                       onChange={handleChange}
                     />
                   </div>
@@ -121,9 +129,8 @@ export default function EditProfBtn(props) {
                     <input
                       id="phone"
                       name="phone"
-                      placeholder="Type here"
+                      placeholder={phone || "Enter phone number"}
                       className="input input-bordered w-full max-w-xs"
-                      value={formData.phone}
                       type="tel"
                       pattern="[0-9]{10}"
                       onChange={handleChange}
@@ -136,16 +143,14 @@ export default function EditProfBtn(props) {
                       <select
                         id="role"
                         name="role"
-                        value={formData.role}
+                        defaultValue={role}
                         onChange={handleChange}
                         autoComplete="country-name"
                         className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 outline"
                       >
                         <option value="Team Manager">Team Manager</option>
-                        <option value="Junior Developer">
-                          Junior Developer
-                        </option>
-                        <option value="Senior Developer">Senior Develop</option>
+                        <option value="Junior Developer">Junior Developer</option>
+                        <option value="Senior Developer">Senior Developer</option>
                       </select>
                       <ChevronDownIcon
                         aria-hidden="true"
@@ -158,10 +163,13 @@ export default function EditProfBtn(props) {
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <form method="dialog">
-                {/* if there is a button, it will close the modal */}
                 <button className="btn btn-warning">Close</button>
               </form>
-              <button type="submit" className="btn btn-success" size="sm">
+              <button 
+                type="submit" 
+                className="btn btn-success" 
+                disabled={Object.keys(formData).length === 0}
+              >
                 Save Changes
               </button>
             </div>
