@@ -13,7 +13,7 @@ import Projects from "./components/projects";
 import { useState } from "react";
 import SocketWrapper from "./components/socketWrapper";
 import Room from "./pages/Room";
-import Contact from "./pages/Contact";
+// import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings"
@@ -73,7 +73,7 @@ function App() {
             </SocketWrapper>
           }
         />
-        <Route path="/contact" element={<Contact />} />
+        {/* <Route path="/contact" element={<Contact />} /> */}
         <Route path="/help" element={<FAQ />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/sett" element={<Settings />} />
